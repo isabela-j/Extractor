@@ -130,7 +130,7 @@ void TagExtractor::parseXML(const std::ostringstream& t_ss, std::stack<QTreeWidg
 	}
 }
 
-
+////cv
 void TagExtractor::extract(const std::string& t_filePath, std::stack<QTreeWidgetItem*>& t_stack)
 {
 	if (m_file.loadFile(t_filePath.c_str()).bad())
