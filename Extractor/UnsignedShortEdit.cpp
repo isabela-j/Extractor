@@ -1,0 +1,28 @@
+#include "UnsignedShortEdit.h"
+
+#include <qvalidator.h>
+
+UnsignedShortEdit::UnsignedShortEdit(QWidget *parent)
+	: QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
+{
+	ui.setupUi(this);
+	presets();
+}
+
+UnsignedShortEdit::~UnsignedShortEdit()
+{
+}
+
+void UnsignedShortEdit::onOKPressed()
+{
+	auto value = ui.lineEditValue->text();
+	emit changeValue(value);
+	this->reject();
+}
+
+void UnsignedShortEdit::presets()
+{
+	const auto regexValidator = 
+		std::make_unique<QRegExpValidator>(QRegExp("^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$"));
+	ui.lineEditValue->setValidator(regexValidator.get());
+}

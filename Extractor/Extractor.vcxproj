@@ -1,0 +1,184 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{237BAD86-13DC-40F9-95B3-7A2E0D9148FF}</ProjectGuid>
+    <Keyword>QtVS_v303</Keyword>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0.18362.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0.18362.0</WindowsTargetPlatformVersion>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Program Files (x86)\Visual Leak Detector\include;..\library\DCMTK\include;.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>..\library\DCMTK\lib;C:\Program Files %28x86%29\Visual Leak Detector\lib\Win64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>dcmtk.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
+    <QtInstall>Q5</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+    <QtBuildConfig>debug</QtBuildConfig>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
+    <QtInstall>Q5</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+    <QtBuildConfig>release</QtBuildConfig>
+  </PropertyGroup>
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
+    <Import Project="$(QtMsBuild)\qt.props" />
+  </ImportGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <Optimization>MaxSpeed</Optimization>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="AS_AE_Dialog.cpp" />
+    <ClCompile Include="ATDialog.cpp" />
+    <ClCompile Include="CSDialog.cpp" />
+    <ClCompile Include="DADialog.cpp" />
+    <ClCompile Include="DicomDictionary.cpp" />
+    <ClCompile Include="DSDialog.cpp" />
+    <ClCompile Include="DTDialog.cpp" />
+    <ClCompile Include="FDdialog.cpp" />
+    <ClCompile Include="FDEditDialog.cpp" />
+    <ClCompile Include="FDInsertDialog.cpp" />
+    <ClCompile Include="InsertDialog.cpp" />
+    <ClCompile Include="ISDialog.cpp" />
+    <ClCompile Include="Items.cpp" />
+    <ClCompile Include="LongStringDialog.cpp" />
+    <ClCompile Include="PNDialog.cpp" />
+    <ClCompile Include="ShortStringDialog.cpp" />
+    <ClCompile Include="STDialog.cpp" />
+    <ClCompile Include="TagExtractor.cpp" />
+    <ClCompile Include="TMDialog.cpp" />
+    <ClCompile Include="ULDialog.cpp" />
+    <ClCompile Include="UniqueIdentifierDialog.cpp" />
+    <ClCompile Include="UnsignedShort.cpp" />
+    <ClCompile Include="UnsignedShortEdit.cpp" />
+    <ClCompile Include="USDialog.cpp" />
+    <QtRcc Include="Extractor.qrc" />
+    <QtUic Include="AS_AE_Dialog.ui" />
+    <QtUic Include="ATDialog.ui" />
+    <QtUic Include="CSDialog.ui" />
+    <QtUic Include="DADialog.ui" />
+    <QtUic Include="DicomDictionary.ui" />
+    <QtUic Include="DSDialog.ui" />
+    <QtUic Include="DTDialog.ui" />
+    <QtUic Include="Extractor.ui" />
+    <QtMoc Include="ExtractorGUI.h" />
+    <ClCompile Include="ExtractorGUI.cpp" />
+    <ClCompile Include="main.cpp" />
+    <QtUic Include="FDdialog.ui" />
+    <QtUic Include="FDEditDialog.ui" />
+    <QtUic Include="FDInsertDialog.ui" />
+    <QtUic Include="InsertDialog.ui" />
+    <QtUic Include="ISDialog.ui" />
+    <QtUic Include="LongStringDialog.ui" />
+    <QtUic Include="PNDialog.ui" />
+    <QtUic Include="ShortStringDialog.ui" />
+    <QtUic Include="STDialog.ui" />
+    <QtUic Include="TMDialog.ui" />
+    <QtUic Include="ULDialog.ui" />
+    <QtUic Include="UniqueIdentifierDialog.ui" />
+    <QtUic Include="UnsignedShort.ui" />
+    <QtUic Include="UnsignedShortEdit.ui" />
+    <QtUic Include="USDialog.ui" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="ULDialog.h" />
+    <QtMoc Include="STDialog.h" />
+    <QtMoc Include="UnsignedShortEdit.h" />
+    <QtMoc Include="UnsignedShort.h" />
+    <QtMoc Include="USDialog.h" />
+    <QtMoc Include="TMDialog.h" />
+    <QtMoc Include="UniqueIdentifierDialog.h" />
+    <QtMoc Include="ShortStringDialog.h" />
+    <QtMoc Include="LongStringDialog.h" />
+    <QtMoc Include="PNDialog.h" />
+    <QtMoc Include="InsertDialog.h" />
+    <QtMoc Include="DicomDictionary.h" />
+    <QtMoc Include="DADialog.h" />
+    <QtMoc Include="ISDialog.h" />
+    <QtMoc Include="CSDialog.h" />
+    <QtMoc Include="AS_AE_Dialog.h" />
+    <QtMoc Include="DSDialog.h" />
+    <QtMoc Include="FDdialog.h" />
+    <QtMoc Include="FDInsertDialog.h" />
+    <QtMoc Include="FDEditDialog.h" />
+    <QtMoc Include="ATDialog.h" />
+    <QtMoc Include="DTDialog.h" />
+    <ClInclude Include="Items.h" />
+    <QtMoc Include="TagExtractor.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
+    <Import Project="$(QtMsBuild)\qt.targets" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
