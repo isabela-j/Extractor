@@ -10,8 +10,6 @@
 #include <dcmtk/dcmdata/dctk.h>
 #include <dcmtk/dcmdata/dcistrmb.h>
 
-
-
 #include "AS_AE_Dialog.h"
 #include "ATDialog.h"
 #include "CSDialog.h"
@@ -29,8 +27,8 @@ Extractor::Extractor(QWidget* parent)
 	: QMainWindow(parent), m_extractor(std::make_unique<TagExtractor>()), m_insertDialog(std::make_unique<InsertDialog>())
 {
 	ui.setupUi(this);
-	Q_UNUSED(connect(m_extractor.get(), &TagExtractor::addNewItemInTree,
-		this, &Extractor::onAddNewItemInTree));
+	Q_UNUSED(connect(m_extractor.get(), &TagExtractor::addNewChildInTree, this, &Extractor::AddChildExtractor));
+	Q_UNUSED(connect(m_extractor.get(), &TagExtractor::addNewRootInTree, this, &Extractor::AddRootExtractor));
 	Q_UNUSED(connect(m_insertDialog.get(), &InsertDialog::sendItem, this, &Extractor::receiveItem));
 	presets();
 }
@@ -43,27 +41,21 @@ void Extractor::presets() const
 	ui.treeWidget->setHeaderLabels(ColumnNames);
 	ui.treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
-
-void Extractor::AddRoot(Items* t_item, std::stack<QTreeWidgetItem*>& t_stack) const
+ 
+void Extractor::AddRootExtractor(QTreeWidgetItem* t_item) const
 {
-	t_stack.push(t_item);
 	ui.treeWidget->addTopLevelItem(t_item);
 	t_item->setExpanded(true);
 }
 
-void Extractor::AddChild(Items* t_item, QTreeWidgetItem* t_root,
-	std::stack<QTreeWidgetItem*>& t_stack)
+void Extractor::AddChildExtractor(QTreeWidgetItem* t_item, QTreeWidgetItem* t_root)
 {
-	t_stack.push(t_item);
 	t_root->addChild(t_item);
 	t_item->setExpanded(true);
 }
 
 void Extractor::AddRoot(Items* t_item)
-{
-
-	QTreeWidgetItemIterator it(ui.treeWidget);
-	
+{	
 	ui.treeWidget->addTopLevelItem(t_item);
 	t_item->setExpanded(true);
 	ui.treeWidget->scrollToItem(t_item);
@@ -84,32 +76,11 @@ void Extractor::on_actionOpen_triggered()
 		QFileDialog::getOpenFileName(this, "Select file",
 			"", "");
 	ui.treeWidget->clear();
-	std::stack<QTreeWidgetItem*> st;
 	if (!m_path.isEmpty())
 	{
-		m_extractor->extract(m_path.toStdString(), st);
+		m_extractor->extract(m_path.toStdString());
 	}
 	ui.treeWidget->sortItems(0, Qt::SortOrder::AscendingOrder);
-}
-
-
-void Extractor::onAddNewItemInTree(Items* t_item, std::stack<QTreeWidgetItem*>& t_stack)
-{
-	if (!t_stack.empty())
-	{
-		while (!t_stack.empty() && t_stack.top()->data(0, 1).toInt()
-			>= t_item->getLevel())
-		{
-			t_stack.pop();
-		}
-		!t_item->getLevel()
-			? AddRoot(t_item, t_stack)
-			: AddChild(t_item, t_stack.top(), t_stack);
-	}
-	else
-	{
-		AddRoot(t_item, t_stack);
-	}
 }
 
 bool Extractor::shouldDelete(QTreeWidgetItem* t_item)
@@ -197,9 +168,7 @@ void Extractor::onInsertTag()
 {
 	if (!ui.treeWidget->selectedItems().isEmpty())
 	{
-		
 		m_insertDialog->exec();
-		
 	}
 	
 }
@@ -356,16 +325,17 @@ void Extractor::valueWasSend(QString& t_name)
 
 void Extractor::onSaveFile()
 {
-	const QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), tr(""), tr("DICOM File (*.dcm)"));
+	const QString fileName = QFileDialog::getSaveFileName(this, 
+		tr("Save File"), tr(""), tr("DICOM File (*.dcm)"));
 	if (!fileName.isEmpty())
 	{
 		DcmFileFormat* file=new DcmFileFormat(createNewFile());
 		file->loadAllDataIntoMemory();
 		std::ostringstream ss;
 		file->writeXML(ss, DCMTypes::PF_shortenLongTagValues);
-		std::cout << ss.str();
+		//std::cout << ss.str();
 
-		if (!file->saveFile(fileName.toStdString().c_str()).good())
+		if (!file->saveFile(fileName.toStdString().c_str(),m_extractor->getFile().getDataset()->getCurrentXfer()).good())
 		{
 			std::cout << "Failed to save. \n";
 		}
@@ -380,85 +350,151 @@ DcmFileFormat Extractor::createNewFile()
 	DcmMetaInfo* metainfo = fileFormat.getMetaInfo();
 
 	DcmMetaInfo* metaInfoOriginal = file.getMetaInfo();
+	DcmDataset* originalDataset = file.getDataset();
 
 	OFString value;
 	metaInfoOriginal->findAndGetOFStringArray(DCM_FileMetaInformationVersion, value);
 	metainfo->putAndInsertString(DCM_FileMetaInformationVersion, value.c_str(), OFTrue);
 	
 	QTreeWidgetItemIterator it(ui.treeWidget);
-	while (*it && dynamic_cast<Items*> (*it)->getTagId().mid(1, 4) == "0002")
+	while (*it && dynamic_cast<Items*> (*it)->getTagId().mid(1, 4) <= "0002")
 	{
 		auto itm = dynamic_cast<Items*>(*it);
-
-		const auto group = itm->getTagId().mid(1, 4);
-		const auto element = itm->getTagId().mid(6, 4);
-		bool ok;
-		DcmTagKey tagKey(group.toInt(&ok, 16), element.toInt(&ok, 16));
-		
-		metainfo->putAndInsertString(tagKey, itm->getValue().toStdString().c_str(), OFFalse);
+		DcmTagKey tagKey = getTagKey(itm);
+		metainfo->putAndInsertOFStringArray(tagKey, itm->getValue().toStdString().c_str(), OFTrue);
 		++it;
 	}
-
+	
+	std::stack<std::pair<DcmSequenceOfItems*, int>> sequenceStack;
 	while (*it)
 	{
 		auto itm= dynamic_cast<Items*>(*it);
 		if (canBeSaved(itm->getTagId()))
 		{
-			QString group = itm->getTagId().mid(1, 4);
-			QString element = itm->getTagId().mid(6, 4);
-			bool ok;
-			DcmTagKey tagKey(group.toInt(&ok, 16), element.toInt(&ok, 16));
+			DcmTagKey tagKey = getTagKey(itm);
+			bool ok = true;
 			
-			if (itm->getVR() == "SQ" && itm->getLevel() > 0)
+			while (!sequenceStack.empty() && ok)
 			{
-				const auto parent = (*it)->parent()->parent();
-				const auto parentGroup = dynamic_cast<Items*>(parent)->getTagId().mid(1, 4);
-				const auto parentElement = dynamic_cast<Items*>(parent)->getTagId().mid(6, 4);
-				DcmTagKey tag(parentGroup.toInt(&ok, 16), parentElement.toInt(&ok, 16));
-			
-				auto dcmSQ = new DcmSequenceOfItems(tagKey);
-				auto dcmItem = dynamic_cast<DcmItem*>(dcmSQ);
-				//auto dcmItem = new DcmItem();
-				//dcmItem->putAndInsertString(tagKey, itm->getValue().toStdString().c_str(), OFFalse);
-				
-				dataset->insertSequenceItem(tag, dcmItem, -2);
-				
+				itm->getLevel() <= sequenceStack.top().second ? sequenceStack.pop() : ok = false;
 			}
-			else if (itm->getLevel() > 0)
+			//QTreeWidgetItemIterator nextIt(++it);
+			//--it;
+			//std::cout << dynamic_cast<Items*>(*nextIt)->getTagId().toStdString() << "\n";
+			if(sequenceStack.empty())
 			{
-				const auto parent = (*it)->parent()->parent();
-				const auto parentGroup= dynamic_cast<Items*>(parent)->getTagId().mid(1, 4);
-				const auto parentElement= dynamic_cast<Items*>(parent)->getTagId().mid(6, 4);
-			
-				DcmTagKey tag(parentGroup.toInt(&ok, 16), parentElement.toInt(&ok, 16));
-
-				auto dcmItem = new DcmItem();
-				dcmItem->putAndInsertString(tagKey, itm->getValue().toStdString().c_str(), OFFalse);
-
-				dataset->insertSequenceItem(tag, dcmItem, -2);
-			}
-			else if (itm->getVR() == "SQ")
-			{
-				auto dcmSQ = new DcmSequenceOfItems(tagKey);
-				dataset->insert(dcmSQ);
-
+				if(itm->getVR()!="SQ")
+				{
+					insertNonSequence(itm, dataset, tagKey);
+				}
+				/*else if (itm->getVR() != "SQ" && (*nextIt)->text(0) == "(FFFE,E000)")
+				{
+					std::cout << "here";
+					//auto* itemSeq = sequenceStack.top().first->getItem(sequenceStack.top().first->card() - 1);
+					//itemSeq->putAndInsertString(tagKey, itm->getValue().toLatin1());
+				}**/
+				else
+				{
+					auto *dcmSQ = new DcmSequenceOfItems(tagKey);
+					dataset->insert(dcmSQ);
+					sequenceStack.push({ dcmSQ,itm->getLevel() });
+				}						 
 			}
 			else
-			{
-				dataset->putAndInsertString(tagKey, itm->getValue().toStdString().c_str(), OFFalse);
-			}
+			{	
+				if(itm->getTagId()=="(FFFE,E000)")
+				{
+					auto* item = new DcmItem(tagKey, itm->getLength().toInt());
+					sequenceStack.top().first->append(item);	
+				}
+				else if (itm->getVR() != "SQ")
+				{
+					auto* itemSeq = sequenceStack.top().first->getItem(sequenceStack.top().first->card()-1);
+					itemSeq->putAndInsertString(tagKey, itm->getValue().toLatin1());
+				}
+				else
+				{
+					auto* itemSeq = sequenceStack.top().first->getItem(0);
+					auto* dcmSQ = new DcmSequenceOfItems(tagKey);
+					itemSeq->insert(dcmSQ);
+					sequenceStack.push({ dcmSQ,itm->getLevel() });
+				}
+			}	
 		}
 		++it;
 	}
-	
-	
-	return fileFormat;
+	// we check if we have Pixel Data in our original dataset
+	Uint8* pixelValue;
+	DcmElement* tempElem = nullptr;
+	originalDataset->findAndGetElement(DCM_PixelData, tempElem, true);
+	if (tempElem)
+	{
+		tempElem->getUint8Array(pixelValue);
+		dataset->putAndInsertUint8Array(DCM_PixelData, pixelValue, tempElem->getLength());
 
+	}
+	return fileFormat;
+}
+
+void Extractor::valueForOB(DcmElement* t_elem, DcmDataset* t_dataset, DcmTagKey& t_tagKey)
+{
+	OFString value;
+	t_dataset->findAndGetOFStringArray(t_tagKey, value);
+	t_elem->putString(value.c_str());
+}
+
+void Extractor::insertNonSequence(Items* t_item, DcmDataset* t_dataset, DcmTagKey& t_tagKey)
+{
+	DcmElement* newElement = NULL;
+	std::string value = t_item->getValue().toLatin1();
+
+	DcmTag tag(t_tagKey);
+	const DcmEVR newTagVR = tag.getEVR();
+	if (newTagVR == EVR_UNKNOWN)
+	{
+		DcmVR dcmvr(t_item->getVR().toStdString().c_str());
+		tag.setVR(dcmvr);
+	}
+
+	OFCondition newElementError = DcmItem::newDicomElementWithVR(newElement, tag);
+
+	if (!newElement)
+	{
+		std::cout << "Invalid VR.   " << tag.getVRName() << "    " << t_item->getTagId().toStdString() << "\n";
+	}
+	else
+	{
+		if (t_tagKey == DCM_PixelData && (newTagVR == EVR_OB || newTagVR == EVR_OW))
+			OFstatic_cast(DcmPixelData*, newElement)->setNonEncapsulationFlag(OFTrue);
+
+		if (!value.empty())
+		{
+			if (value == "hidden" &&( tag.getEVR() == EVR_OB || tag.getEVR() == EVR_OW ))
+			{
+				valueForOB(newElement, m_extractor->getFile().getDataset(), t_tagKey);
+			}
+			else
+			{
+				OFCondition l_error = newElement->putString(value.c_str());
+			}
+
+		}
+		OFCondition cond = t_dataset->insert(newElement);
+	}
+}
+
+DcmTagKey Extractor::getTagKey(Items* t_item)
+{
+	const auto group = t_item->getTagId().mid(1, 4);
+	const auto element = t_item->getTagId().mid(6, 4);
+	bool ok;
+	DcmTagKey tagkey(group.toInt(&ok, 16), element.toInt(&ok, 16));
+	return tagkey;
 }
 
 bool Extractor::canBeSaved(const QString& t_tagId)
 {
-	return (t_tagId != "(FFFE,E000)" && t_tagId != "(FFFE,E00D)" && t_tagId != "(FFFE,E0DD)");
+	return (t_tagId != "(FFFE,E00D)" && t_tagId != "(FFFE,E0DD)");
 }
 
 void Extractor::receiveItem(Items* t_item)
@@ -473,5 +509,3 @@ void Extractor::receiveItem(Items* t_item)
 	}
 	addValueToGroupLength(t_item);
 }
-
-

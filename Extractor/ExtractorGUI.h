@@ -19,7 +19,7 @@ public:
 
 private slots:
 	void on_actionOpen_triggered();
-	void onAddNewItemInTree(Items* t_item, std::stack<QTreeWidgetItem*>& t_stack);
+	//void onAddNewItemInTree(Items* t_item, std::stack<QTreeWidgetItem*>& t_stack);
 	void onDeleteTag();
 	void onInsertTag();
 	void onEditTag();
@@ -34,8 +34,8 @@ private:
 	std::unique_ptr<InsertDialog> m_insertDialog = {};
 	QString m_path={};
 
-	void AddRoot(Items* t_item, std::stack<QTreeWidgetItem*>& t_stack) const;
-	void AddChild(Items* t_item, QTreeWidgetItem* t_root, std::stack<QTreeWidgetItem*>& t_stack);
+	void AddRootExtractor(QTreeWidgetItem* t_item) const;
+	void AddChildExtractor(QTreeWidgetItem* t_item, QTreeWidgetItem* t_root);
 	void AddRoot(Items* t_item);
 	void AddChild(Items* t_item, QTreeWidgetItem* t_root);
 
@@ -47,6 +47,11 @@ private:
 
 	DcmFileFormat createNewFile();
 	bool canBeSaved(const QString& t_tagId);
+	void valueForOB(DcmElement* t_elem, DcmDataset* t_dataset, DcmTagKey& t_tagKey);
+	void insertNonSequence(Items* t_item, DcmDataset* t_dataset, DcmTagKey& t_tagKey);
+	DcmTagKey getTagKey(Items* t_item);
 };
+
+
 
 
