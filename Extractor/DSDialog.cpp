@@ -2,29 +2,23 @@
 
 #include <qvalidator.h>
 
-DSDialog::DSDialog(QString& t_description, QWidget *parent)
-	: QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
+DSDialog::DSDialog(const QString& t_description, QWidget* parent)
+	:AbstractVRDialog(t_description,parent)
 {
-	ui.setupUi(this);
 	presets(t_description);
-}
-
-DSDialog::~DSDialog()
-{
 }
 
 void DSDialog::onOKPressed()
 {
-	auto value = ui.lineEditValue->text();
+	auto value = m_ui.lineEditValue->text();
 	emit sendValue(value);
-	this->reject();
+	close();
 }
 
-void DSDialog::presets(QString& t_description)
+void DSDialog::presets(const QString& t_description)
 {
-	ui.labelDescription->setText(t_description);
-	ui.lineEditValue->setMaxLength(16);
-	const auto regexValidator =
-		std::make_unique<QRegExpValidator>(QRegExp("[0-9+-.]*(e|E)$"));
-	ui.lineEditValue->setValidator(regexValidator.get());
+
+	m_ui.labelDescription->setText(t_description);
+	m_ui.lineEditValue->setMaxLength(16);
+	m_ui.lineEditValue->setValidator(new QRegExpValidator(QRegExp("[0-9+-.]*(e|E)$"),this));
 }

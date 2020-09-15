@@ -15,6 +15,6 @@ signals:
 private slots:
 	void onOKPressed();
 private:
-	Ui::FDInsertDialog ui;
-	void presets();
+	Ui::FDInsertDialog m_ui={};
+	void presets() const;
 };

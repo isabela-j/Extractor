@@ -16,15 +16,18 @@ void CSDialog::presets(QString& t_description)
 {
 	if(t_description=="Modality")
 	{
-		auto* comboBox = new QComboBox();
+		auto* const comboBox = new QComboBox();
 		QStringList list = { "CR", "CT", "MR", "US", "OT", "BI", "CD", "DD", "DG","ES","LS","PT","RG",
 						   "ST", "TG", "RF","RTIMAGE","RTDOSE","RTSTRUCT", "RTPLAN", "RTRECORD", "HC"
 						   "DX","NM","MG", "IO","PX", "GM", "SM", "XC","PR","AU","EPS","HD","SR","IVUS","OP","SMR" };
-		for (int i = 0; i < list.size(); i++)
+		for (int i = 0; i < list.size(); ++i)
+		{
 			comboBox->addItem(list[i]);
+		}
 		ui.verticalLayoutValue->addWidget(comboBox);
 		ui.labelDescription->setText(list[0]);
-		connect(comboBox, QOverload<int>::of(&QComboBox::highlighted), this, [=](int index) { ui.labelDescription->setText(list[index]), m_value = list[index]; });
+		connect(comboBox, QOverload<int>::of(&QComboBox::highlighted), 
+			this, [=](int index) { ui.labelDescription->setText(list[index]), m_value = list[index]; });
 		
 		
 	}

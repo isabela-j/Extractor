@@ -53,37 +53,10 @@
     <ClCompile Include="PNDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LongStringDialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ShortStringDialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="UniqueIdentifierDialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DADialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TMDialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ISDialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CSDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DSDialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="USDialog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="UnsignedShort.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="UnsignedShortEdit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FDdialog.cpp">
@@ -98,16 +71,52 @@
     <ClCompile Include="ATDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="WarningDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ISDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AbstractVRDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DSDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DADialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="DTDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AS_AE_Dialog.cpp">
+    <ClCompile Include="ASDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AEDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LODialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SHDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TMDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ULDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="USInsertEdit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="STDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ULDialog.cpp">
+    <ClCompile Include="SizeSQ.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -127,37 +136,10 @@
     <QtMoc Include="PNDialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="LongStringDialog.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="ShortStringDialog.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="UniqueIdentifierDialog.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="DADialog.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="TMDialog.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="ISDialog.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="CSDialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="DSDialog.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="USDialog.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="UnsignedShort.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="UnsignedShortEdit.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="FDdialog.h">
@@ -172,16 +154,52 @@
     <QtMoc Include="ATDialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="WarningDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="AbstractVRDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ISDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="DSDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="DADialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
     <QtMoc Include="DTDialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="AS_AE_Dialog.h">
+    <QtMoc Include="ASDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="AEDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="LODialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SHDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="TMDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ULDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="UIDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="USInsertEdit.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="STDialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="ULDialog.h">
+    <QtMoc Include="SizeSQ.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -200,37 +218,10 @@
     <QtUic Include="PNDialog.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-    <QtUic Include="LongStringDialog.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include="ShortStringDialog.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include="UniqueIdentifierDialog.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include="DADialog.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include="TMDialog.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include="ISDialog.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
     <QtUic Include="CSDialog.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-    <QtUic Include="DSDialog.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
     <QtUic Include="USDialog.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include="UnsignedShort.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include="UnsignedShortEdit.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="FDdialog.ui">
@@ -245,16 +236,16 @@
     <QtUic Include="ATDialog.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-    <QtUic Include="DTDialog.ui">
+    <QtUic Include="WarningDialog.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-    <QtUic Include="AS_AE_Dialog.ui">
+    <QtUic Include="AbstractVRDialog.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="STDialog.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-    <QtUic Include="ULDialog.ui">
+    <QtUic Include="SizeSQ.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

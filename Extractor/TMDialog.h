@@ -1,21 +1,17 @@
 #pragma once
-
-#include <QDialog>
-#include "ui_TMDialog.h"
-
-class TMDialog : public QDialog
+#include "AbstractVRDialog.h"
+class TMDialog final : public AbstractVRDialog
 {
 	Q_OBJECT
-
 public:
-	TMDialog(QString& t_description,QWidget *parent = Q_NULLPTR);
-	~TMDialog();
-private slots:
-	void onOKPressed();
+	explicit TMDialog(const QString& t_description, QWidget* parent = Q_NULLPTR);
+	~TMDialog() = default;
 signals:
-	void sendValue(QString& t_value);
+	void sendValue(QString& t_value) override;
+private slots:
+	void onOKPressed() override;
 
 private:
-	Ui::TMDialog ui;
-	void presets(QString& t_description);
+	void presets(const QString& t_description) override;
 };
+

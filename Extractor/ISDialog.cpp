@@ -2,27 +2,22 @@
 
 #include <qvalidator.h>
 
-ISDialog::ISDialog(QString& t_description, QWidget* parent)
-	: QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
+ISDialog::ISDialog(const QString& t_description, QWidget* parent)
+	:AbstractVRDialog(t_description, parent)
 {
-	ui.setupUi(this);
 	presets(t_description);
 }
 
-ISDialog::~ISDialog()
-{
-}
 void ISDialog::onOKPressed()
 {
-	auto value = ui.lineEditValue->text();
+	auto value =m_ui.lineEditValue->text();
 	emit sendValue(value);
-	this->reject();
+	close();
 }
-void ISDialog::presets(QString& t_description)
+
+void ISDialog::presets(const QString& t_description)
 {
-	ui.labelDescription->setText(t_description);
-	ui.lineEditValue->setMaxLength(12);
-	const auto regexValidator =
-		std::make_unique<QRegExpValidator>(QRegExp("(\\d+\\+-?)+"));
-	ui.lineEditValue->setValidator(regexValidator.get());
+	m_ui.labelDescription->setText(t_description);
+	m_ui.lineEditValue->setMaxLength(12);
+	m_ui.lineEditValue->setValidator(new QRegExpValidator(QRegExp("(\\d+\\+-?)+"),this));
 }

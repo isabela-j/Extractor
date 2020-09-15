@@ -2,21 +2,18 @@
 
 USDialog::USDialog(QString& t_description, QWidget *parent)
 	: QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint),
-	m_insertDialogUS(std::make_unique<UnsignedShort>()), m_editDialogUS(std::make_unique<UnsignedShortEdit>())
+	m_insertDialogUS(std::make_unique<USInsertEdit>("",nullptr)), m_editDialogUS(std::make_unique<USInsertEdit >("",nullptr))
 {
 	ui.setupUi(this);
 	presets(t_description);
 }
 
-USDialog::~USDialog()
-{
-}
 
 void USDialog::onOKPressed()
 {
 	QString value;
-	int count = ui.listWidget->count();
-	for(int i=0;i<count;i++)
+	auto count = ui.listWidget->count();
+	for(auto i=0;i<count;i++)
 	{
 		value += ui.listWidget->item(i)->text();
 		if(i+1!=count)
@@ -25,21 +22,21 @@ void USDialog::onOKPressed()
 		}
 	}
 	emit sendValue(value);
-	this->reject();
+	close();
 }
 
-void USDialog::valueWasSend(QString& t_value)
+void USDialog::valueWasSend(QString& t_value) const
 {
 	auto* item = new QListWidgetItem(t_value, nullptr, 0);
 	ui.listWidget->addItem(item);
 }
 
-void USDialog::valueWasChanged(QString& t_value)
+void USDialog::valueWasChanged(QString& t_value) const
 {
 	ui.listWidget->selectedItems()[0]->setText(t_value);
 }
 
-void USDialog::onDeletePressed()
+void USDialog::onDeletePressed() const
 {
 	if (!ui.listWidget->selectedItems().isEmpty())
 	{
@@ -47,12 +44,12 @@ void USDialog::onDeletePressed()
 	}
 }
 
-void USDialog::onInsertPressed()
+void USDialog::onInsertPressed() const
 {
 	m_insertDialogUS->exec();	
 }
 
-void USDialog::onEditPressed()
+void USDialog::onEditPressed() const
 {
 	if(!ui.listWidget->selectedItems().isEmpty())
 	{
@@ -61,10 +58,10 @@ void USDialog::onEditPressed()
 	}
 }
 
-void USDialog::presets(QString& t_description)
+void USDialog::presets(QString& t_description) const
 {
 	ui.labelDescription->setText(t_description);
-	Q_UNUSED(connect(m_insertDialogUS.get(), &UnsignedShort::sendValue, this, &USDialog::valueWasSend));
-	Q_UNUSED(connect(m_editDialogUS.get(), &UnsignedShortEdit::changeValue, this, &USDialog::valueWasChanged));
+	Q_UNUSED(connect(m_insertDialogUS.get(), &USInsertEdit::sendValue, this, &USDialog::valueWasSend));
+	Q_UNUSED(connect(m_editDialogUS.get(), &USInsertEdit::sendValue, this, &USDialog::valueWasChanged));
 }
 

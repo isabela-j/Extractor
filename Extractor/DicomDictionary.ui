@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>556</width>
-    <height>515</height>
+    <width>578</width>
+    <height>516</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -28,6 +28,9 @@
      <property name="sortingEnabled">
       <bool>true</bool>
      </property>
+     <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+      <bool>true</bool>
+     </attribute>
     </widget>
    </item>
    <item>

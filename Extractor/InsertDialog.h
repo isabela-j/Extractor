@@ -2,10 +2,7 @@
 #include <QListWidget>
 #include "DicomDictionary.h"
 #include "ui_InsertDialog.h"
-#include "PNDialog.h"
-#include "LongStringDialog.h"
-#include "ShortStringDialog.h"
-#include "UniqueIdentifierDialog.h"
+
 
 class InsertDialog : public QDialog
 {
@@ -15,15 +12,17 @@ public:
 	explicit InsertDialog(QWidget *parent = Q_NULLPTR);
 	~InsertDialog();
 signals:
-	void sendItem(Items* t_item);
+	void sendItem(QString& t_tagId, QString& t_vr, QString& t_vm, QString& t_length, QString& t_description, QString &t_value);
 private slots:
 	void onListItems() const;
 	void cancelPressed() { this->reject(); }
-	void onInsertData(QString& t_group, QString& t_element, QString& t_description, QString& t_VR);
+	void onInsertData(QString& t_group, QString& t_element, QString& t_description, QString& t_VR) const;
 	void onInsertPressed();
-	void valueWasSend(QString& t_name);
+	void valueWasSent(QString& t_name);
+	void sizeWasSent(QString& t_size);
 private:
-	Ui::InsertDialog ui={};
+	Ui::InsertDialog m_ui={};
 	DicomDictionary* m_dictionary={};
-	void presets();
+	void presets() const;
+	void setGroupElementFormat() const;
 };

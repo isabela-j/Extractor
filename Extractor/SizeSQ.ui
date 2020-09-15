@@ -1,39 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>LongStringDialog</class>
- <widget class="QDialog" name="LongStringDialog">
+ <class>SizeSQ</class>
+ <widget class="QDialog" name="SizeSQ">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>145</height>
+    <width>204</width>
+    <height>97</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>LongStringDialog</string>
+   <string>SizeSQ</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
+  <layout class="QHBoxLayout" name="horizontalLayout_2">
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
-      <widget class="QLabel" name="labelDescription">
-       <property name="text">
-        <string>Long String </string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QLabel" name="labelValue">
+        <widget class="QRadioButton" name="radioButtonExplicit">
          <property name="text">
-          <string>Value</string>
+          <string>Explicit Size</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEditValue"/>
+        <widget class="QRadioButton" name="radioButtonUndefined">
+         <property name="text">
+          <string>Undefined Size</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
@@ -59,13 +56,6 @@
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QPushButton" name="pushButtonCancel">
-         <property name="text">
-          <string>Cancel</string>
-         </property>
-        </widget>
-       </item>
       </layout>
      </item>
     </layout>
@@ -76,34 +66,18 @@
  <resources/>
  <connections>
   <connection>
-   <sender>pushButtonCancel</sender>
-   <signal>clicked()</signal>
-   <receiver>LongStringDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>348</x>
-     <y>118</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>353</x>
-     <y>250</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>pushButtonOK</sender>
    <signal>clicked()</signal>
-   <receiver>LongStringDialog</receiver>
+   <receiver>SizeSQ</receiver>
    <slot>onOKPressed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>272</x>
-     <y>119</y>
+     <x>150</x>
+     <y>71</y>
     </hint>
     <hint type="destinationlabel">
-     <x>278</x>
-     <y>149</y>
+     <x>187</x>
+     <y>148</y>
     </hint>
    </hints>
   </connection>

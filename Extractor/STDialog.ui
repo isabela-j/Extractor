@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>306</width>
-    <height>261</height>
+    <width>352</width>
+    <height>320</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>STDialog</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
+  <layout class="QHBoxLayout" name="horizontalLayout_2">
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
       <widget class="QLabel" name="labelDescription">
        <property name="text">
-        <string>Description</string>
+        <string> Description</string>
        </property>
       </widget>
      </item>
@@ -33,7 +33,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QTextEdit" name="textEditValue"/>
+        <widget class="QPlainTextEdit" name="textEditValue"/>
        </item>
       </layout>
      </item>
@@ -76,34 +76,34 @@
  <resources/>
  <connections>
   <connection>
-   <sender>pushButtonOK</sender>
-   <signal>clicked()</signal>
-   <receiver>STDialog</receiver>
-   <slot>onOKPressed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>197</x>
-     <y>244</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>211</x>
-     <y>279</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>pushButtonCancel</sender>
    <signal>clicked()</signal>
    <receiver>STDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>265</x>
-     <y>238</y>
+     <x>312</x>
+     <y>300</y>
     </hint>
     <hint type="destinationlabel">
-     <x>382</x>
-     <y>276</y>
+     <x>334</x>
+     <y>427</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButtonOK</sender>
+   <signal>clicked()</signal>
+   <receiver>STDialog</receiver>
+   <slot>onOKPressed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>237</x>
+     <y>302</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>288</x>
+     <y>372</y>
     </hint>
    </hints>
   </connection>

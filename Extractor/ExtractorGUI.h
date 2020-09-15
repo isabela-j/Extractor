@@ -1,13 +1,12 @@
 #pragma once
 
 #include <iostream>
-#include <QtWidgets/QMainWindow>
 
 #include "TagExtractor.h"
 #include "ui_Extractor.h"
 #include "InsertDialog.h"
 #include <QTreeWidget>
-#include <stack>
+#include <QMessageBox>
 
 class Extractor final : public QMainWindow
 {
@@ -24,8 +23,8 @@ private slots:
 	void onInsertTag();
 	void onEditTag();
 	void onSaveFile();
-	void receiveItem(Items* t_item);
-	void valueWasSend(QString& t_name);
+	void receiveItem(QString& t_tagId, QString& t_vr, QString& t_vm, QString& t_length, QString& t_description, QString& t_value) const;
+	void valueWasSend(QString& t_name) const;
 	
 
 private:
@@ -33,24 +32,39 @@ private:
 	std::unique_ptr<TagExtractor> m_extractor = {};
 	std::unique_ptr<InsertDialog> m_insertDialog = {};
 	QString m_path={};
-
+	
+	
+	void createConnections();
+	
 	void AddRootExtractor(QTreeWidgetItem* t_item) const;
 	void AddChildExtractor(QTreeWidgetItem* t_item, QTreeWidgetItem* t_root);
-	void AddRoot(Items* t_item);
-	void AddChild(Items* t_item, QTreeWidgetItem* t_root);
+	void AddRoot(Items* t_item) const;
+	void AddChild(Items* t_item, QTreeWidgetItem* t_root) const;
 
 	void presets() const;
 	bool shouldDelete(QTreeWidgetItem *t_item);
 	bool shouldEdit(QTreeWidgetItem* t_item);
-	void substractValueFromGroupLength(QTreeWidgetItem* t_item);
-	void addValueToGroupLength(QTreeWidgetItem* t_item);
+	bool shouldInsert(QTreeWidgetItem* t_item);
+	void subtractValueFromGroupLength(QTreeWidgetItem* t_item) const;
+	void addValueToGroupLength(QTreeWidgetItem* t_item) const;
+	void insertSequenceDelimitators(QTreeWidgetItem* t_root) const;
 
 	DcmFileFormat createNewFile();
 	bool canBeSaved(const QString& t_tagId);
-	void valueForOB(DcmElement* t_elem, DcmDataset* t_dataset, DcmTagKey& t_tagKey);
-	void insertNonSequence(Items* t_item, DcmDataset* t_dataset, DcmTagKey& t_tagKey);
+	void hidden_values(DcmElement* t_newElem, DcmDataset* t_dataset, DcmTagKey& t_tagKey);
+	void valueForEVR_ox(DcmElement* t_newElem, DcmDataset* t_originalDataset,DcmDataset* t_newDataset, DcmTagKey& t_tagKey);
+	void valueForEVR_FD_OD(DcmElement* t_newElem, Items* t_item);
+	void valueForEVR_FL_OF(DcmElement* t_newElem, Items* t_item);
+	void saveNonSequenceRoot(Items* t_item, DcmDataset* t_dataset, DcmTagKey& t_tagKey);
+	void saveNonSequenceChild(Items* t_item, DcmItem* t_parent, DcmDataset* t_dataset, DcmTagKey& t_tagKey);
 	DcmTagKey getTagKey(Items* t_item);
+	DcmTagKey getTagKey(const QString& t_group, const QString &t_element);
 };
+
+
+
+
+
 
 
 

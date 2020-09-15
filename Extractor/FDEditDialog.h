@@ -10,12 +10,12 @@ class FDEditDialog : public QDialog
 public:
 	FDEditDialog(QWidget *parent = Q_NULLPTR);
 	~FDEditDialog();
-	void setLineEditValue(const QString& t_value) { ui.lineEditValue->setText(t_value); }
+	void setLineEditValue(const QString& t_value) const { m_ui.lineEditValue->setText(t_value); }
 private slots:
 	void onOKPressed();
 signals:
 	void changeValue(QString& t_value);
 private:
-	Ui::FDEditDialog ui;
-	void presets();
+	Ui::FDEditDialog m_ui={};
+	void presets() const;
 };

@@ -2,29 +2,23 @@
 
 #include <qvalidator.h>
 
-DTDialog::DTDialog(QString& t_description, QWidget *parent)
-	: QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
+DTDialog::DTDialog(const QString& t_description, QWidget* parent)
+	:AbstractVRDialog(t_description, parent)
 {
-	ui.setupUi(this);
 	presets(t_description);
-}
-
-DTDialog::~DTDialog()
-{
 }
 
 void DTDialog::onOKPressed()
 {
-	auto value = ui.lineEditValue->text();
+	auto value = m_ui.lineEditValue->text();
 	emit sendValue(value);
-	this->reject();
+	close();
 }
 
-void DTDialog::presets(QString& t_description)
+void DTDialog::presets(const QString& t_description)
 {
-	ui.labelDescription->setText(t_description);
-	ui.lineEditValue->setMaxLength(16);
-	const auto regexValidator =
-		std::make_unique<QRegExpValidator>(QRegExp("([0-9]{4})(0[1-9]|1[0-2])(0[1-9]|[1-2][0-9]|3[0-1])(2[0-3]|[01][0-9])([0-5][0-9])([0-5][0-9])"));
-	ui.lineEditValue->setValidator(regexValidator.get());
+	m_ui.labelDescription->setText("Date format: YYYYMMDDHHMMSS\n" + t_description);
+	m_ui.lineEditValue->setMaxLength(16);
+	m_ui.lineEditValue->setValidator(new QRegExpValidator(QRegExp(
+		"([0-9]{4})(0[1-9]|1[0-2])(0[1-9]|[1-2][0-9]|3[0-1])(2[0-3]|[01][0-9])([0-5][0-9])([0-5][0-9])"), this));
 }

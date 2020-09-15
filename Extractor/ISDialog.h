@@ -1,21 +1,18 @@
 #pragma once
 
-#include <QDialog>
-#include "ui_ISDialog.h"
+#include "AbstractVRDialog.h"
 
-class ISDialog : public QDialog
+class ISDialog final : public AbstractVRDialog
 {
 	Q_OBJECT
-
 public:
-	ISDialog(QString& t_description, QWidget *parent = Q_NULLPTR);
-	~ISDialog();
+	explicit ISDialog(const QString& t_description, QWidget* parent = Q_NULLPTR);
+	~ISDialog() = default;
 private slots:
-	void onOKPressed();
+	 void onOKPressed() override;
 signals:
-	void sendValue(QString& t_value);
-
+	void sendValue(QString& t_value) override;
 private:
-	Ui::ISDialog ui;
-	void presets(QString& t_description);
+	void presets(const QString& t_description) override;
 };
+

@@ -8,8 +8,8 @@ class Items final : public QTreeWidgetItem
 public:
 	Items() = default;
 	Items(const QString& tagID, const QString& VR,
-	      const QString& VM, const QString& length,
-	      const QString& desc, const QString& value, const int& level);
+		const QString& VM, const QString& length,
+		const QString& desc, const QString& value, const int& level);
 	~Items() = default;
 
 	enum class type
@@ -28,5 +28,5 @@ public:
 	[[nodiscard]] QString getLength() const { return text(3); }
 	[[nodiscard]] QString getVR() const { return text(1); }
 private:
-	int m_level=0 ;
+	int m_level = 0;
 };

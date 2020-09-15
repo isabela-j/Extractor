@@ -2,29 +2,22 @@
 
 #include <qvalidator.h>
 
-TMDialog::TMDialog(QString& t_description, QWidget *parent)
-	: QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
+TMDialog::TMDialog(const QString& t_description, QWidget* parent)
+	:AbstractVRDialog(t_description,parent)
 {
-	ui.setupUi(this);
 	presets(t_description);
-}
-
-TMDialog::~TMDialog()
-{
 }
 
 void TMDialog::onOKPressed()
 {
-	auto value = ui.lineEditValue->text();
+	auto value = m_ui.lineEditValue->text();
 	emit sendValue(value);
-	this->reject();
+	close();
 }
-void TMDialog::presets(QString& t_description)
+
+void TMDialog::presets(const QString& t_description)
 {
-	ui.labelDescription->setText(t_description);
-	ui.labelTimeFormat->setText("Time Format: HHMMSS");
-	ui.lineEditValue->setMaxLength(8);
-	const auto regexValidator =
-		std::make_unique<QRegExpValidator>(QRegExp("(2[0-3]|[01]?[0-9])([0-5]?[0-9])([0-5]?[0-9])$"));
-	ui.lineEditValue->setValidator(regexValidator.get());
+	m_ui.labelDescription->setText("Time Format: HHMMSS \n" + t_description);
+	m_ui.lineEditValue->setMaxLength(6);
+	m_ui.lineEditValue->setValidator(new QRegExpValidator(QRegExp("(2[0-3]|[01][0-9])[0-5][0-9][0-5][0-9]"), this));
 }
