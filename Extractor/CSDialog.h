@@ -1,16 +1,15 @@
 #pragma once
 
-#include <QDialog>
 #include<QLineEdit>
 #include "ui_CSDialog.h"
 
-class CSDialog : public QDialog
+class CSDialog final: public QDialog
 {
 	Q_OBJECT
 
 public:
-	CSDialog(QString& t_description,QWidget *parent = Q_NULLPTR);
-	~CSDialog();
+	explicit CSDialog(QString& t_description,QWidget *parent = Q_NULLPTR);
+	~CSDialog()=default;
 
 private slots:
 	void onOKPressed();

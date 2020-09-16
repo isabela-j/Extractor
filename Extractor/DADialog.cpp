@@ -5,7 +5,7 @@
 DADialog::DADialog(QString& t_description, QWidget* parent)
 	:AbstractVRDialog(t_description,parent)
 {
-	presets(t_description);
+	DADialog::presets(t_description);
 }
 
 

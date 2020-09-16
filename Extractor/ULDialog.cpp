@@ -15,7 +15,7 @@ void ULDialog::onOKPressed()
 	const auto val = value.toLongLong();
 	if(val> 4294967295)
 	{
-		int warning = QMessageBox::warning(this, tr("Warning found"),
+		 QMessageBox::warning(this, tr("Warning found"),
 			tr("Introduce an integer between 0 and 4294967295."), QMessageBox::Cancel);
 	}
 	else

@@ -9,7 +9,7 @@ class DicomDictionary : public QDialog
 	Q_OBJECT
 
 public:
-	DicomDictionary(QWidget *parent = Q_NULLPTR);
+	explicit DicomDictionary(QWidget *parent = Q_NULLPTR);
 	~DicomDictionary();
 	void populate() const;
 	void presets();

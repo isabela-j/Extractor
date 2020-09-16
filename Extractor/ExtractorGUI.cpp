@@ -28,10 +28,10 @@
 #include "ULDialog.h"
 
 #include "USDialog.h"
-#include "WarningDialog.h"
 
 Extractor::Extractor(QWidget* parent)
-	: QMainWindow(parent), m_extractor(std::make_unique<TagExtractor>()), m_insertDialog(std::make_unique<InsertDialog>())
+	: QMainWindow(parent), m_extractor(std::make_unique<TagExtractor>()),
+	m_insertDialog(std::make_unique<InsertDialog>())
 {
 	ui.setupUi(this);
 	createConnections();
@@ -51,7 +51,7 @@ void Extractor::presets() const
 	ui.pushButton->setEnabled(false);
 }
 
-void Extractor::createConnections()
+void Extractor::createConnections() const
 {
 	Q_UNUSED(connect(m_extractor.get(), &TagExtractor::addNewChildInTree, this, &Extractor::AddChildExtractor));
 	Q_UNUSED(connect(m_extractor.get(), &TagExtractor::addNewRootInTree, this, &Extractor::AddRootExtractor));
@@ -78,23 +78,29 @@ void Extractor::AddRoot(Items* t_item) const
 		delete items[0];
 	}
 	ui.treeWidget->addTopLevelItem(t_item);
+	addValueToGroupLength(t_item);
 	t_item->setExpanded(true);
 	ui.treeWidget->scrollToItem(t_item);
 	ui.treeWidget->setCurrentItem(t_item);
 }
 
-void Extractor::AddChild(Items* t_item, QTreeWidgetItem* t_root) const
+void Extractor::AddChild(Items* t_item, const bool acceptDuplicates, QTreeWidgetItem* t_root) const
 {
-	auto i = 0;
-	while (i < t_root->childCount())
+	
+	if(!acceptDuplicates)
 	{
-		if (t_root->child(i)->text(0) == t_item->text(0))
+		auto i = 0;
+		while (i < t_root->childCount())
 		{
-			t_root->takeChild(i);
+			if (t_root->child(i)->text(0) == t_item->text(0))
+			{
+				t_root->takeChild(i);
+			}
+			++i;
 		}
-		i++;
 	}
 	t_root->addChild(t_item);
+	addValueToGroupLength(t_item);
 	t_item->setExpanded(true);
 	ui.treeWidget->scrollToItem(t_item);
 	ui.treeWidget->setCurrentItem(t_item);
@@ -141,7 +147,8 @@ bool Extractor::shouldEdit(QTreeWidgetItem* t_item)
 	if (t_item->text(4) == "PhotometricInterpretation" || t_item->text(4) == "Rows"
 		|| t_item->text(4) == "Columns" || t_item->text(4).contains("Pixel")
 		|| t_item->text(4).contains("Item") || t_item->text(4).contains("Bit")
-		|| t_item->text(4).contains("TransferSyntax") || t_item->text(0).contains("0000") || t_item->text(5).contains("hidden"))
+		|| t_item->text(4).contains("TransferSyntax") || t_item->text(0).contains("0000")
+		|| t_item->text(5).contains("hidden"))
 	{
 		return false;
 	}
@@ -151,19 +158,13 @@ bool Extractor::shouldEdit(QTreeWidgetItem* t_item)
 
 bool Extractor::shouldInsert(QTreeWidgetItem* t_item)
 {
-	auto ok = false;
 	if (!t_item->text(0).contains("FFFE,E00D") &&
 		!t_item->text(0).contains("FFFE,E0DD") &&
 		!t_item->text(0).contains("Pixel"))
 	{
-		ok = true;
+		return true;
 	}
-	if (t_item->childCount())
-	{
-		auto* const child = t_item->child(0);
-		return(child->text(0) != "(FFFE,E0DD)" && ok);
-	}
-	return ok;
+	return false;
 }
 
 
@@ -186,7 +187,6 @@ void Extractor::subtractValueFromGroupLength(QTreeWidgetItem* t_item) const
 }
 
 
-
 void Extractor::addValueToGroupLength(QTreeWidgetItem* t_item) const
 {
 	auto const tagId = "(" + t_item->text(0).mid(1, 4) + ",0000)";
@@ -194,7 +194,8 @@ void Extractor::addValueToGroupLength(QTreeWidgetItem* t_item) const
 	const auto items = ui.treeWidget->findItems(tagId, Qt::MatchExactly, 0);
 	if (!items.count())
 	{
-		AddRoot(new Items(tagId, "UL", "1", "4", "Group Length", std::to_string(val).c_str(), 0));
+		AddRoot(new Items(tagId, "UL", "1", "4", "Group Length", 
+			std::to_string(val).c_str(), 0));
 	}
 	else
 	{
@@ -202,8 +203,8 @@ void Extractor::addValueToGroupLength(QTreeWidgetItem* t_item) const
 		auto const newValue = std::to_string((initialValue + val));
 		items.at(0)->setText(5, newValue.c_str());
 	}
-
 }
+
 
 
 void Extractor::onDeleteTag()
@@ -217,8 +218,8 @@ void Extractor::onDeleteTag()
 			return;
 		}
 	}
-	int warning = QMessageBox::warning(this, tr("Warning found"),
-		tr("You are not allowed to do this operation."), QMessageBox::Cancel);
+	QMessageBox::warning(this, tr("Warning found"),
+	   tr("You are not allowed to do this operation."), QMessageBox::Cancel);
 }
 
 void Extractor::onInsertTag()
@@ -232,12 +233,12 @@ void Extractor::onInsertTag()
 			return;
 		}
 	}
-	int warning = QMessageBox::warning(this, tr("Warning found"), 
+	 QMessageBox::warning(this, tr("Warning found"), 
 		tr("You are not allowed to do this operation."), QMessageBox::Cancel);
 }
 
 
-void Extractor::onEditTag() //todo
+void Extractor::onEditTag() 
 {
 	if (!ui.treeWidget->selectedItems().isEmpty())
 	{
@@ -250,78 +251,67 @@ void Extractor::onEditTag() //todo
 			{
 				auto* pnDialog = new PNDialog(description, this);
 				Q_UNUSED(connect(pnDialog, &PNDialog::sendName, this, &Extractor::valueWasSend));
-				pnDialog->exec();
-				
+				pnDialog->exec();				
 			}
 			else if (ui.treeWidget->selectedItems()[0]->text(1) == "LO")
 			{
 				auto* loDialog = new LODialog(description, this);
 				Q_UNUSED(connect(loDialog, &LODialog::sendValue, this, &Extractor::valueWasSend));
-				loDialog->exec();
-				
+				loDialog->exec();		
 			}
 			else if (ui.treeWidget->selectedItems()[0]->text(1) == "SH")
 			{
 				auto* shDialog = new SHDialog(description, this);
 				Q_UNUSED(connect(shDialog, &SHDialog::sendValue, this, &Extractor::valueWasSend));
-				shDialog->exec();
-				
+				shDialog->exec();				
 			}
 			else if (ui.treeWidget->selectedItems()[0]->text(1) == "UI")
 			{
 				auto* uiDialog = new UIDialog(description, this);
 				Q_UNUSED(connect(uiDialog, &UIDialog::sendValue, this, &Extractor::valueWasSend));
-				uiDialog->exec();
-			
+				uiDialog->exec();			
 			}
 			else if (ui.treeWidget->selectedItems()[0]->text(1) == "DA")
 			{
 				auto* daDialog = new DADialog(description, this);
 				Q_UNUSED(connect(daDialog, &DADialog::sendValue, this, &Extractor::valueWasSend));
-				daDialog->exec();
-			
+				daDialog->exec();			
 			}
 			else if (ui.treeWidget->selectedItems()[0]->text(1) == "TM")
 			{
 				auto* tmDialog = new TMDialog(description, this);
 				Q_UNUSED(connect(tmDialog, &TMDialog::sendValue, this, &Extractor::valueWasSend));
 				tmDialog->exec();
-		
 			}
 			else if (ui.treeWidget->selectedItems()[0]->text(1) == "IS")
 			{
 				auto* isDialog = new ISDialog(description, this);
 				Q_UNUSED(connect(isDialog, &ISDialog::sendValue, this, &Extractor::valueWasSend));
-				isDialog->exec();
-			
+				isDialog->exec();		
 			}
 			else if (ui.treeWidget->selectedItems()[0]->text(1) == "CS")
 			{
 				auto* csDialog = new CSDialog(description, this);
 				Q_UNUSED(connect(csDialog, &CSDialog::sendValue, this, &Extractor::valueWasSend));
 				csDialog->exec();
-				
 			}
 			else if (ui.treeWidget->selectedItems()[0]->text(1) == "AS")
 			{
 				auto* asDialog = new ASDialog( description, this);
 				Q_UNUSED(connect(asDialog, &ASDialog::sendValue, this, &Extractor::valueWasSend));
-				asDialog->exec();
-				
+				asDialog->exec();				
 			}
 			else if (ui.treeWidget->selectedItems()[0]->text(1) == "AE")
 			{
 				auto* aeDialog = new AEDialog(description, this);
 				Q_UNUSED(connect(aeDialog, &AEDialog::sendValue, this, &Extractor::valueWasSend));
-				aeDialog->exec();
-				
+				aeDialog->exec();		
 			}
 			else if (ui.treeWidget->selectedItems()[0]->text(1) == "DS")
 			{
 				auto* dsDialog = new DSDialog(description, this);
 				Q_UNUSED(connect(dsDialog, &DSDialog::sendValue, this, &Extractor::valueWasSend));
 				dsDialog->exec();
-			
 			}
 			else if (ui.treeWidget->selectedItems()[0]->text(1) == "US" ||
 				ui.treeWidget->selectedItems()[0]->text(1) == "SS")
@@ -329,22 +319,19 @@ void Extractor::onEditTag() //todo
 				auto* usDialog = new USDialog(description, this);
 				Q_UNUSED(connect(usDialog, &USDialog::sendValue, this, &Extractor::valueWasSend));
 				usDialog->exec();
-				
 			}
 			else if (ui.treeWidget->selectedItems()[0]->text(1) == "FD"
 				|| ui.treeWidget->selectedItems()[0]->text(1) == "FL")
 			{
 				auto* fdDialog = new FDdialog(description, this);
 				Q_UNUSED(connect(fdDialog, &FDdialog::sendValue, this, &Extractor::valueWasSend));
-				fdDialog->exec();
-				
+				fdDialog->exec();	
 			}
 			else if (ui.treeWidget->selectedItems()[0]->text(1) == "AT")
 			{
 				auto* atDialog = new ATDialog(description, this);
 				Q_UNUSED(connect(atDialog, &ATDialog::sendValue, this, &Extractor::valueWasSend));
 				atDialog->exec();
-			
 			}
 			else if (ui.treeWidget->selectedItems()[0]->text(1) == "DT")
 			{
@@ -360,26 +347,24 @@ void Extractor::onEditTag() //todo
 				auto* stDialog = new STDialog(description, this);
 				Q_UNUSED(connect(stDialog, &STDialog::sendValue, this, &Extractor::valueWasSend));
 				stDialog->exec();
-				delete stDialog;
 			}
 			else if (ui.treeWidget->selectedItems()[0]->text(1) == "UL")
 			{
 				auto* ulDialog = new ULDialog(description,this);
 				Q_UNUSED(connect(ulDialog, &ULDialog::sendValue, this, &Extractor::valueWasSend));
 				ulDialog->exec();
-			
 			}
 			addValueToGroupLength(ui.treeWidget->selectedItems()[0]);
 		}
 		else
 		{
-			int warning = QMessageBox::warning(this, tr("Warning found"),
+			QMessageBox::warning(this, tr("Warning found"),
 				tr("You are not allowed to do this operation."), QMessageBox::Cancel);
 		}
 	}
 	else
 	{
-		int warning = QMessageBox::warning(this, tr("Warning found"),
+		 QMessageBox::warning(this, tr("Warning found"),
 			tr("You are not allowed to do this operation."), QMessageBox::Cancel);
 	}
 
@@ -401,9 +386,13 @@ void Extractor::valueWasSend(QString& t_name) const
 
 	auto size = 0;
 	if (!t_name.isEmpty())
+	{
 		size = t_name.size() - nr;
+	}
 	if (size % 2)
+	{
 		size++;
+	}
 	ui.treeWidget->selectedItems()[0]->setText(2, std::to_string(nr + 1).c_str());
 	ui.treeWidget->selectedItems()[0]->setText(3, std::to_string(size).c_str());
 }
@@ -427,12 +416,14 @@ void Extractor::onSaveFile()
 DcmFileFormat Extractor::createNewFile()
 {
 	DcmFileFormat fileFormat;
+	
 	auto file = m_extractor->getFile();
 	auto* dataset = fileFormat.getDataset();
 	auto* metainfo = fileFormat.getMetaInfo();
 
 	auto* metaInfoOriginal = file.getMetaInfo();
 	auto* originalDataset = file.getDataset();
+	
 
 	OFString value;
 	metaInfoOriginal->findAndGetOFStringArray(DCM_FileMetaInformationVersion, value);
@@ -460,29 +451,19 @@ DcmFileFormat Extractor::createNewFile()
 			auto ok = true;
 			while (!sequenceStack.empty() && ok)
 			{
-				itm->getLevel() <= sequenceStack.top().second ? sequenceStack.pop() : ok = false;
+				itm->getLevel()<= sequenceStack.top().second ? sequenceStack.pop() : ok = false;
 			}
 
 			if (sequenceStack.empty())
 			{
 				if (itm->getVR() == "OB" && itm->childCount()) /// for multi-frame
 				{
-					DcmElement* elem = nullptr;
-					originalDataset->findAndGetElement(tagKey, elem, false, true);
-					if (elem)
-					{
-						dataset->insert(elem);
-					}
+					valueMultiframeAndVOILUT(dataset, originalDataset, tagKey);
 					stop = true;
 				}
 				else if (tagKey == DCM_VOILUTSequence)
 				{
-					DcmElement* elem = nullptr;
-					originalDataset->findAndGetElement(tagKey, elem, false, true);
-					if (elem)
-					{
-						dataset->insert(elem);
-					}
+					valueMultiframeAndVOILUT(dataset, originalDataset, tagKey);
 				}
 				else if (itm->getVR() != "SQ")
 				{
@@ -490,14 +471,11 @@ DcmFileFormat Extractor::createNewFile()
 				}
 				else
 				{
-					auto* dcmSQ = new DcmSequenceOfItems(tagKey);
-					dataset->insert(dcmSQ);
-					sequenceStack.push({ dcmSQ,itm->getLevel() });
+					saveDcmSequenceOfItems(itm, dataset, sequenceStack, tagKey);
 				}
 			}
 			else
 			{
-
 				if (itm->getTagId() == "(FFFE,E000)")
 				{
 					auto* item = new DcmItem(tagKey, itm->getLength().toInt());
@@ -505,8 +483,8 @@ DcmFileFormat Extractor::createNewFile()
 				}
 				else if (itm->getVR() != "SQ")
 				{
-					auto* itemSeq = sequenceStack.top().first->getItem(sequenceStack.top().first->card() - 1);
-					saveNonSequenceChild(itm, itemSeq, dataset, tagKey);
+					auto* parent = sequenceStack.top().first->getItem(sequenceStack.top().first->card() - 1);
+					saveNonSequenceChild(itm, parent, dataset, tagKey);
 				}
 				else
 				{
@@ -521,6 +499,7 @@ DcmFileFormat Extractor::createNewFile()
 	}
 	return fileFormat;
 }
+
 
 void Extractor::hidden_values(DcmElement* t_newElem, DcmDataset* t_dataset, DcmTagKey& t_tagKey)
 {
@@ -543,12 +522,12 @@ void Extractor::valueForEVR_ox(DcmElement* t_newElem, DcmDataset* t_originalData
 	DcmStack currentStack;
 	t_newDataset->findAndGetElements(t_tagKey, currentStack);
 
-	auto howMuchToPop = originalStack.card() - currentStack.card() - 1; //todo change name
+	auto newTop = originalStack.card() - currentStack.card() - 1; 
 
-	while (howMuchToPop)
+	while (newTop)
 	{
 		originalStack.pop();
-		howMuchToPop--;
+		newTop--;
 	}
 	auto* elem = dynamic_cast<DcmElement*>(originalStack.top());
 
@@ -556,7 +535,6 @@ void Extractor::valueForEVR_ox(DcmElement* t_newElem, DcmDataset* t_originalData
 	elem->getUint8Array(pixelValue);
 	const auto size = elem->getLength();
 	t_newElem->putUint8Array(pixelValue, size);
-
 }
 
 
@@ -585,7 +563,17 @@ void Extractor::valueForEVR_FL_OF(DcmElement* t_newElem, Items* t_item)
 	}
 }
 
-void Extractor::saveNonSequenceRoot(Items* t_item, DcmDataset* t_dataset, DcmTagKey& t_tagKey) //todo
+void Extractor::valueMultiframeAndVOILUT(DcmDataset* t_dataset, DcmDataset* t_originalDataset, DcmTagKey& t_tagKey)
+{
+	DcmElement* elem = nullptr;
+	t_originalDataset->findAndGetElement(t_tagKey, elem, false, true);
+	if (elem)
+	{
+		t_dataset->insert(elem);
+	}
+}
+
+void Extractor::saveNonSequenceRoot(Items* t_item, DcmDataset* t_dataset, DcmTagKey& t_tagKey) 
 {
 	DcmElement* newElement = nullptr;
 	const auto value = t_item->getValue().toLatin1();
@@ -599,12 +587,8 @@ void Extractor::saveNonSequenceRoot(Items* t_item, DcmDataset* t_dataset, DcmTag
 	}
 
 	DcmItem::newDicomElementWithVR(newElement, tag);
-
-	if (!newElement)
-	{
-		std::cout << "Invalid VR. root" << tag.getVRName() << " " << t_item->getTagId().toStdString() << " " << t_item->getValue().toStdString() << "\n";
-	}
-	else
+	
+	if(newElement)
 	{
 		if (t_tagKey == DCM_PixelData && (newTagVR == EVR_OB || newTagVR == EVR_OW))
 			OFstatic_cast(DcmPixelData*, newElement)->setNonEncapsulationFlag(OFTrue);
@@ -641,12 +625,10 @@ void Extractor::saveNonSequenceRoot(Items* t_item, DcmDataset* t_dataset, DcmTag
 			newElement->putString(value);
 			t_dataset->insert(newElement);
 		}
-
 	}
-
 }
 
-void Extractor::saveNonSequenceChild(Items* t_item, DcmItem* t_parent, DcmDataset* t_dataset, DcmTagKey& t_tagKey)
+void Extractor::saveNonSequenceChild(Items* t_item, DcmItem* t_parentItem, DcmDataset* t_dataset, DcmTagKey& t_tagKey)
 {
 	DcmElement* newElement = nullptr;
 	const auto value = t_item->getValue().toLatin1();
@@ -657,14 +639,10 @@ void Extractor::saveNonSequenceChild(Items* t_item, DcmItem* t_parent, DcmDatase
 		const DcmVR dcmvr(t_item->getVR().toStdString().c_str());
 		tag.setVR(dcmvr);
 	}
-
+	
 	DcmItem::newDicomElementWithVR(newElement, tag);
 
-	if (!newElement)
-	{
-		std::cout << "Invalid VR." << tag.getVRName() << " " << t_item->getTagId().toStdString() << "\n";
-	}
-	else
+	if(newElement)
 	{
 		if (t_tagKey == DCM_PixelData && (newTagVR == EVR_OB || newTagVR == EVR_OW))
 			OFstatic_cast(DcmPixelData*, newElement)->setNonEncapsulationFlag(OFTrue);
@@ -672,7 +650,7 @@ void Extractor::saveNonSequenceChild(Items* t_item, DcmItem* t_parent, DcmDatase
 		if (tag.getEVR() == EVR_ox || tag.getEVR() == EVR_OB || tag.getEVR() == EVR_OW)
 		{
 			valueForEVR_ox(newElement, m_extractor->getFile().getDataset(), t_dataset, tag);
-			t_parent->insert(newElement);
+			t_parentItem->insert(newElement);
 		}
 		else if (tag.getEVR() == EVR_lt)
 		{
@@ -681,30 +659,38 @@ void Extractor::saveNonSequenceChild(Items* t_item, DcmItem* t_parent, DcmDatase
 		else if (tag.getEVR() == EVR_FD || tag.getEVR() == EVR_OD)
 		{
 			valueForEVR_FD_OD(newElement, t_item);
-			t_parent->insert(newElement);
+			t_parentItem->insert(newElement);
 		}
 		else if (tag.getEVR() == EVR_FL || tag.getEVR() == EVR_OF)
 		{
 			valueForEVR_FL_OF(newElement, t_item);
-			t_parent->insert(newElement);
+			t_parentItem->insert(newElement);
 		}
 		else if (tag.getEVR() == EVR_UN)
 		{
 			hidden_values(newElement, m_extractor->getFile().getDataset(), tag);
-			t_parent->insert(newElement);
+			t_parentItem->insert(newElement);
 		}
 		else if (tag.getEVR() == EVR_AT)
 		{
 			const auto group = t_item->text(5).mid(0, 4);
 			const auto element = t_item->text(5).mid(5, 4);
-			t_parent->putAndInsertTagKey(tag, getTagKey(group, element));
+			t_parentItem->putAndInsertTagKey(tag, getTagKey(group, element));
 		}
 		else
 		{
 			newElement->putString(value);
-			t_parent->insert(newElement);
+			t_parentItem->insert(newElement);
 		}
 	}
+}
+
+void Extractor::saveDcmSequenceOfItems(Items* t_item, DcmDataset* t_dataset,
+	std::stack<std::pair<DcmSequenceOfItems*, int>>& t_sequenceStack, DcmTagKey& t_tagKey)
+{
+	auto* dcmSQ = new DcmSequenceOfItems(t_tagKey);
+	t_dataset->insert(dcmSQ);
+	t_sequenceStack.push({ dcmSQ, t_item->getLevel() });
 }
 
 DcmTagKey Extractor::getTagKey(Items* t_item)
@@ -731,11 +717,11 @@ bool Extractor::canBeSaved(const QString& t_tagId)
 
 void Extractor::receiveItem(QString& t_tagId, QString& t_vr, QString& t_vm, QString& t_length, QString& t_description, QString& t_value) const
 {
-	if (!ui.treeWidget->selectedItems()[0]->childCount())
+	auto* selected = ui.treeWidget->selectedItems()[0];
+	if (!selected->childCount())
 	{
 		auto* itm = new Items(t_tagId, t_vr, t_vm, t_length, t_description, t_value, 0);
 		AddRoot(itm);
-		addValueToGroupLength(itm);
 		if (t_vr == "SQ")
 		{
 			insertSequenceDelimitators(itm);
@@ -743,30 +729,57 @@ void Extractor::receiveItem(QString& t_tagId, QString& t_vr, QString& t_vm, QStr
 	}
 	else
 	{
-		const auto level = ui.treeWidget->selectedItems()[0]->data(0, 1).toInt() + 2;
-		auto* itm = new Items(t_tagId, t_vr, t_vm, t_length, t_description, t_value, level);
-		AddChild(itm, ui.treeWidget->selectedItems()[0]->child(0));
-		addValueToGroupLength(itm);
-
-
-		if(t_vr=="SQ")
+		if(selected->text(0)!= "(FFFE,E000)")
+		{	
+			const auto level = selected->data(0, 1).toInt() + 2;
+			auto* itm = new Items(t_tagId, t_vr, t_vm, t_length, t_description, t_value, level);
+			addInSequence(itm, selected);
+		}
+		else
 		{
-			insertSequenceDelimitators(itm);
+			const auto level =selected->data(0, 1).toInt() + 1;
+			auto* itm = new Items(t_tagId, t_vr, t_vm, t_length, t_description, t_value, level);
+			AddChild(itm, false, selected);
+			
+			if (t_vr == "SQ")
+			{
+				insertSequenceDelimitators(itm);
+			}
 		}
 	}
-
 }
 
-void Extractor::insertSequenceDelimitators(QTreeWidgetItem* t_root) const
+Items* Extractor::insertSequenceDelimitators(QTreeWidgetItem* t_root) const
+{
+	const auto level = t_root->data(0, 1).toInt();
+	
+	auto* sequenceDelimitation = new Items("(FFFE,E0DD)", "", "0",
+		"0", "Sequence Delimitation Item", "", level + 1);
+	AddChild(sequenceDelimitation,true, t_root);
+
+	return sequenceDelimitation;
+}
+
+
+Items* Extractor::insertItemDelimitators(QTreeWidgetItem* t_root) const
 {
 	const auto level = t_root->data(0, 1).toInt();
 	auto* seqItem = new Items("(FFFE,E000)", "", "0",
 		"Undefined", "Item", "", level + 1);
-	AddChild(seqItem, t_root);
+	AddChild(seqItem, true, t_root);
+
 	auto* itemDelimitation = new Items("(FFFE,E00D)", "", "0",
 		"0", "Item Delimitation Item", "", level + 2);
-	AddChild(itemDelimitation, seqItem);
-	auto* sequenceDelimitation = new Items("(FFFE,E0DD)", "", "0",
-		"0", "Sequence Delimitation Item", "", level + 1);
-	AddChild(sequenceDelimitation, t_root);
+	AddChild(itemDelimitation, true, seqItem);
+	return seqItem;
+}
+
+void Extractor::addInSequence(Items* t_item, QTreeWidgetItem* t_widgetItem) const
+{
+	auto* parent = insertItemDelimitators(t_widgetItem);
+	AddChild(t_item, true, parent);
+	if (t_item->getVR() == "SQ")
+	{
+		insertSequenceDelimitators(t_item);
+	}
 }

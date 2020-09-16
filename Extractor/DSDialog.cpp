@@ -17,7 +17,6 @@ void DSDialog::onOKPressed()
 
 void DSDialog::presets(const QString& t_description)
 {
-
 	m_ui.labelDescription->setText(t_description);
 	m_ui.lineEditValue->setMaxLength(16);
 	m_ui.lineEditValue->setValidator(new QRegExpValidator(QRegExp("[0-9+-.]*(e|E)$"),this));

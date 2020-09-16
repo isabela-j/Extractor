@@ -15,7 +15,7 @@ void STDialog::onOKPressed()
 	close();
 }
 
-void STDialog::presets(const QString& t_description)
+void STDialog::presets(const QString& t_description) const
 {
 	m_ui.labelDescription->setText(t_description);
 }

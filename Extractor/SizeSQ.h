@@ -1,14 +1,14 @@
 #pragma once
 
-#include <QDialog>
+
 #include "ui_SizeSQ.h"
 
-class SizeSQ : public QDialog
+class SizeSQ final: public QDialog
 {
 	Q_OBJECT
 
 public:
-	SizeSQ(QWidget *parent = Q_NULLPTR);
+	explicit SizeSQ(QWidget *parent = Q_NULLPTR);
 	~SizeSQ() = default;
 signals:
 	void sendSize(QString& t_size);

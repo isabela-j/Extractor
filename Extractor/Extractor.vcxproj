@@ -123,7 +123,6 @@
     <ClCompile Include="ULDialog.cpp" />
     <ClCompile Include="USDialog.cpp" />
     <ClCompile Include="USInsertEdit.cpp" />
-    <ClCompile Include="WarningDialog.cpp" />
     <QtRcc Include="Extractor.qrc" />
     <QtUic Include="AbstractVRDialog.ui" />
     <QtUic Include="ATDialog.ui" />
@@ -141,7 +140,6 @@
     <QtUic Include="SizeSQ.ui" />
     <QtUic Include="STDialog.ui" />
     <QtUic Include="USDialog.ui" />
-    <QtUic Include="WarningDialog.ui" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="SizeSQ.h" />
@@ -152,7 +150,6 @@
     <QtMoc Include="TMDialog.h" />
     <QtMoc Include="SHDialog.h" />
     <QtMoc Include="LODialog.h" />
-    <QtMoc Include="WarningDialog.h" />
     <QtMoc Include="USDialog.h" />
     <QtMoc Include="PNDialog.h" />
     <QtMoc Include="InsertDialog.h" />

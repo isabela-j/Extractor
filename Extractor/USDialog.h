@@ -1,7 +1,5 @@
 #pragma once
 
-#include <QDialog>
-
 #include "ui_USDialog.h"
 #include "USInsertEdit.h"
 

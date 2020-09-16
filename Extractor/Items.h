@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QTreeWidget>
-#include <QTableWidget>
+
 
 class Items final : public QTreeWidgetItem
 {

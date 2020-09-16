@@ -21,7 +21,6 @@
 #include "UIDialog.h"
 #include "ULDialog.h"
 #include "USDialog.h"
-#include "WarningDialog.h"
 
 InsertDialog::InsertDialog(QWidget* parent)
 	: QDialog(parent,  Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint),
@@ -55,7 +54,7 @@ void InsertDialog::onInsertData(QString& t_group, QString& t_element, QString& t
 }
 
 
-void InsertDialog::onInsertPressed() //todo
+void InsertDialog::onInsertPressed() 
 {
 	auto description = m_ui.descriptionLabel->text();
 	if(m_ui.lineEditVR->text().toUpper()=="PN")
@@ -168,7 +167,7 @@ void InsertDialog::onInsertPressed() //todo
 	}
 	else
 	{
-		int warning = QMessageBox::warning(this, tr("Warning found"),
+		QMessageBox::warning(this, tr("Warning found"),
 			tr("You are not allowed to do this operation."), QMessageBox::Cancel);
 	}
 }
@@ -213,7 +212,6 @@ void InsertDialog::valueWasSent(QString& t_name)
 void InsertDialog::sizeWasSent(QString& t_size)
 {
 	setGroupElementFormat();
-
 	auto tagID = "(" + m_ui.lineEditGroup->text() + "," +
 		m_ui.lineEditElement->text() + ")";
 	QString vr = "SQ";
@@ -222,7 +220,6 @@ void InsertDialog::sizeWasSent(QString& t_size)
 	QString value = "";
 	emit sendItem(tagID, vr, vm, t_size, description, value);
 	close();
-	
 }
 
 void InsertDialog::presets() const
