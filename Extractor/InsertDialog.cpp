@@ -1,9 +1,8 @@
 #include "InsertDialog.h"
 #include <iostream>
+#include <QMessageBox>
 #include <dcmtk/dcmdata/dcdict.h>
 
-
-#include "AS_AE_Dialog.h"
 #include "ATDialog.h"
 #include "CSDialog.h"
 #include "DADialog.h"
@@ -11,8 +10,15 @@
 #include "DTDialog.h"
 #include "FDdialog.h"
 #include "ISDialog.h"
+#include "PNDialog.h"
 #include "STDialog.h"
+#include "AEDialog.h"
+#include "ASDialog.h"
+#include "LODialog.h"
+#include "SHDialog.h"
+#include "SizeSQ.h"
 #include "TMDialog.h"
+#include "UIDialog.h"
 #include "ULDialog.h"
 #include "USDialog.h"
 
@@ -20,10 +26,11 @@ InsertDialog::InsertDialog(QWidget* parent)
 	: QDialog(parent,  Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint),
 	m_dictionary(new DicomDictionary(this))
 {
-	ui.setupUi(this);
+	m_ui.setupUi(this);
 	Q_UNUSED(connect(m_dictionary,
 		&DicomDictionary::insertData,
 		this, &InsertDialog::onInsertData));
+	presets();
 }
 
 InsertDialog::~InsertDialog()
@@ -37,196 +44,218 @@ void InsertDialog::onListItems() const
 	m_dictionary->exec();
 }
 
-void InsertDialog::onInsertData(QString& t_group, QString& t_element, QString& t_description, QString& t_VR)
+void InsertDialog::onInsertData(QString& t_group, QString& t_element, QString& t_description, QString& t_VR) const
 {
-	ui.lineEditGroup->setText(t_group);
-	ui.lineEditElement->setText(t_element);
-	ui.lineEditVR->setText(t_VR);
-	ui.descriptionLabel->setText(t_description);
-	m_dictionary->reject();
+	m_ui.lineEditGroup->setText(t_group);
+	m_ui.lineEditElement->setText(t_element);
+	m_ui.lineEditVR->setText(t_VR);
+	m_ui.descriptionLabel->setText(t_description);
+	m_dictionary->close();
 }
 
 
-void InsertDialog::onInsertPressed()
+void InsertDialog::onInsertPressed() 
 {
-	if(ui.lineEditVR->text()=="PN")
+	auto description = m_ui.descriptionLabel->text();
+	if(m_ui.lineEditVR->text().toUpper()=="PN")
 	{
-		auto* pnDialog = new PNDialog(ui.descriptionLabel->text(),this);
-		Q_UNUSED(connect(pnDialog, &PNDialog::sendName, this, &InsertDialog::valueWasSend));
+		auto* pnDialog = new PNDialog(description,this);
+		Q_UNUSED(connect(pnDialog, &PNDialog::sendName, this, &InsertDialog::valueWasSent));
 		pnDialog->exec();
-		delete pnDialog;
 	}
-	else if(ui.lineEditVR->text()=="LO")
+	else if(m_ui.lineEditVR->text().toUpper()=="LO")
 	{
-		auto* loDialog = new LongStringDialog(ui.descriptionLabel->text(), this);
-		Q_UNUSED(connect(loDialog, &LongStringDialog::sendValue, this, &InsertDialog::valueWasSend));
+		auto* loDialog = new LODialog(description, this);
+		Q_UNUSED(connect(loDialog, &LODialog::sendValue, this, &InsertDialog::valueWasSent));
 		loDialog->exec();
-		delete loDialog;
 	}
-	else if(ui.lineEditVR->text()=="SH")
+	else if(m_ui.lineEditVR->text().toUpper()=="SH")
 	{
-		auto* shDialog = new ShortStringDialog(ui.descriptionLabel->text(), this);
-		Q_UNUSED(connect(shDialog, &ShortStringDialog::sendValue, this, &InsertDialog::valueWasSend));
+		auto* shDialog = new SHDialog(description, this);
+		Q_UNUSED(connect(shDialog, &SHDialog::sendValue, this, &InsertDialog::valueWasSent));
 		shDialog->exec();
-		delete shDialog;
 	}
-	else if(ui.lineEditVR->text() == "UI")
+	else if(m_ui.lineEditVR->text().toUpper() == "UI")
 	{
-		auto* uiDialog = new UniqueIdentifierDialog(ui.descriptionLabel->text(), this);
-		Q_UNUSED(connect(uiDialog, &UniqueIdentifierDialog::sendValue, this, &InsertDialog::valueWasSend));
+		auto* uiDialog = new UIDialog(description, this);
+		Q_UNUSED(connect(uiDialog, &UIDialog::sendValue, this, &InsertDialog::valueWasSent));
 		uiDialog->exec();
-		delete uiDialog;
 	}
-	else if(ui.lineEditVR->text() == "DA")
+	else if(m_ui.lineEditVR->text().toUpper() == "DA")
 	{
-		auto* daDialog = new DADialog(ui.descriptionLabel->text(), this);
-		Q_UNUSED(connect(daDialog, &DADialog::sendValue, this, &InsertDialog::valueWasSend));
+		auto* daDialog = new DADialog(description, this);
+		Q_UNUSED(connect(daDialog, &DADialog::sendValue, this, &InsertDialog::valueWasSent));
 		daDialog->exec();
-		delete daDialog;
 	}
-	else if (ui.lineEditVR->text() == "TM")
+	else if (m_ui.lineEditVR->text().toUpper() == "TM")
 	{
-		auto* tmDialog = new TMDialog(ui.descriptionLabel->text(), this);
-		Q_UNUSED(connect(tmDialog, &TMDialog::sendValue, this, &InsertDialog::valueWasSend));
+		auto* tmDialog = new TMDialog(description, this);
+		Q_UNUSED(connect(tmDialog, &TMDialog::sendValue, this, &InsertDialog::valueWasSent));
 		tmDialog->exec();
-		delete tmDialog;
 	}
-	else if (ui.lineEditVR->text() == "IS")
+	else if (m_ui.lineEditVR->text().toUpper() == "IS" )
 	{
-		auto* isDialog = new ISDialog(ui.descriptionLabel->text(), this);
-		Q_UNUSED(connect(isDialog, &ISDialog::sendValue, this, &InsertDialog::valueWasSend));
+		auto* isDialog = new ISDialog(description, this);
+		Q_UNUSED(connect(isDialog, &ISDialog::sendValue, this, &InsertDialog::valueWasSent));
 		isDialog->exec();
-		delete isDialog;
 	}
-	else if (ui.lineEditVR->text() == "CS")
+	else if (m_ui.lineEditVR->text().toUpper() == "CS" )
 	{
-		auto* csDialog = new CSDialog(ui.descriptionLabel->text(), this);
-		Q_UNUSED(connect(csDialog, &CSDialog::sendValue, this, &InsertDialog::valueWasSend));
+		auto* csDialog = new CSDialog(description, this);
+		Q_UNUSED(connect(csDialog, &CSDialog::sendValue, this, &InsertDialog::valueWasSent));
 		csDialog->exec();
-		delete csDialog;
 	}
-	else if(ui.lineEditVR->text()=="AS")
+	else if(m_ui.lineEditVR->text().toUpper()=="AS")
 	{
-		auto* asDialog = new ASDialog(ui.lineEditVR->text(),ui.descriptionLabel->text(), this);
-		Q_UNUSED(connect(asDialog, &ASDialog::sendValue, this, &InsertDialog::valueWasSend));
+		auto* asDialog = new ASDialog(description, this);
+		Q_UNUSED(connect(asDialog, &ASDialog::sendValue, this, &InsertDialog::valueWasSent));
 		asDialog->exec();
-		delete asDialog;
 	}
-	else if (ui.lineEditVR->text() == "AE")
+	else if (m_ui.lineEditVR->text().toUpper() == "AE")
 	{
-		auto* aeDialog = new ASDialog(ui.lineEditVR->text(), ui.descriptionLabel->text(), this);
-		Q_UNUSED(connect(aeDialog, &ASDialog::sendValue, this, &InsertDialog::valueWasSend));
+		auto* aeDialog = new AEDialog( description, this);
+		Q_UNUSED(connect(aeDialog, &AEDialog::sendValue, this, &InsertDialog::valueWasSent));
 		aeDialog->exec();
-		delete aeDialog;
 	}
-	else if (ui.lineEditVR->text() == "DS")
+	else if (m_ui.lineEditVR->text().toUpper() == "DS")
 	{
-		auto* dsDialog = new DSDialog(ui.descriptionLabel->text(), this);
-		Q_UNUSED(connect(dsDialog, &DSDialog::sendValue, this, &InsertDialog::valueWasSend));
+		auto* dsDialog = new DSDialog(description, this);
+		Q_UNUSED(connect(dsDialog, &DSDialog::sendValue, this, &InsertDialog::valueWasSent));
 		dsDialog->exec();
-		delete dsDialog;
 	}
-	else if(ui.lineEditVR->text()=="US")
+	else if(m_ui.lineEditVR->text().toUpper()=="US"|| m_ui.lineEditVR->text().toUpper() == "SS")
 	{
-		auto* usDialog = new USDialog(ui.descriptionLabel->text(), this);
-		Q_UNUSED(connect(usDialog, &USDialog::sendValue, this, &InsertDialog::valueWasSend));
+		auto* usDialog = new USDialog(description, this);
+		Q_UNUSED(connect(usDialog, &USDialog::sendValue, this, &InsertDialog::valueWasSent));
 		usDialog->exec();
-		delete usDialog;
 	}
-	else if (ui.lineEditVR->text() == "FD" || ui.lineEditVR->text() == "FL")
+	else if (m_ui.lineEditVR->text().toUpper() == "FD" || m_ui.lineEditVR->text().toUpper() == "FL")
 	{
-		auto* fdDialog = new FDdialog(ui.descriptionLabel->text(), this);
-		Q_UNUSED(connect(fdDialog, &FDdialog::sendValue, this, &InsertDialog::valueWasSend));
+		auto* fdDialog = new FDdialog(description, this);
+		Q_UNUSED(connect(fdDialog, &FDdialog::sendValue, this, &InsertDialog::valueWasSent));
 		fdDialog->exec();
-		delete fdDialog;
 	}
-	else if (ui.lineEditVR->text() == "AT")
+	else if (m_ui.lineEditVR->text().toUpper() == "AT")
 	{
-		auto* atDialog = new ATDialog(ui.descriptionLabel->text(), this);
-		Q_UNUSED(connect(atDialog, &ATDialog::sendValue, this, &InsertDialog::valueWasSend));
+		auto* atDialog = new ATDialog(description, this);
+		Q_UNUSED(connect(atDialog, &ATDialog::sendValue, this, &InsertDialog::valueWasSent));
 		atDialog->exec();
-		delete atDialog;
 	}
-	else if (ui.lineEditVR->text() == "DT")
+	else if (m_ui.lineEditVR->text().toUpper() == "DT")
 	{
-		auto* dtDialog = new DTDialog(ui.descriptionLabel->text(), this);
-		Q_UNUSED(connect(dtDialog, &DTDialog::sendValue, this, &InsertDialog::valueWasSend));
+		auto* dtDialog = new DTDialog(description, this);
+		Q_UNUSED(connect(dtDialog, &DTDialog::sendValue, this, &InsertDialog::valueWasSent));
 		dtDialog->exec();
-		delete dtDialog;
 	}
-	else if (ui.lineEditVR->text() == "ST" || ui.lineEditVR->text() == "UT" || ui.lineEditVR->text() == "LT") 
+	else if (m_ui.lineEditVR->text().toUpper() == "ST" || m_ui.lineEditVR->text().toUpper() == "UT" || m_ui.lineEditVR->text().toUpper() == "LT")
 	{
-		auto* stDialog = new STDialog(ui.descriptionLabel->text(), this);
-		Q_UNUSED(connect(stDialog, &STDialog::sendValue, this, &InsertDialog::valueWasSend));
+		auto* stDialog = new STDialog(description, this);
+		Q_UNUSED(connect(stDialog, &STDialog::sendValue, this, &InsertDialog::valueWasSent));
 		stDialog->exec();
-		delete stDialog;
 	}
-	else if (ui.lineEditVR->text() == "UL")
+	else if (m_ui.lineEditVR->text().toUpper() == "UL")
 	{
-		auto* ulDialog = new ULDialog( this);
-		Q_UNUSED(connect(ulDialog, &ULDialog::sendValue, this, &InsertDialog::valueWasSend));
+		auto* ulDialog = new ULDialog( description, this);
+		Q_UNUSED(connect(ulDialog, &ULDialog::sendValue, this, &InsertDialog::valueWasSent));
 		ulDialog->exec();
-		delete ulDialog;
 	}
-	else if (ui.lineEditVR->text() == "OB")
+	else if (m_ui.lineEditVR->text().toUpper() == "SQ")
 	{
-		QString noName = "hidden";
-		valueWasSend(noName);
+		auto* sqSizeDialog = new SizeSQ(this);
+		Q_UNUSED(connect(sqSizeDialog, &SizeSQ::sendSize, this, &InsertDialog::sizeWasSent));
+		sqSizeDialog->exec();
 	}
 	else
 	{
-		QString noName;
-		valueWasSend(noName);
+		QMessageBox::warning(this, tr("Warning found"),
+			tr("You are not allowed to do this operation."), QMessageBox::Cancel);
 	}
-	
-	
 }
 
-void InsertDialog::valueWasSend(QString& t_name)
+void InsertDialog::valueWasSent(QString& t_name)
 {
-	if(ui.lineEditElement->text().isEmpty())
+	setGroupElementFormat();
+
+	auto tagID = "(" + m_ui.lineEditGroup->text() + "," + 
+		m_ui.lineEditElement->text() + ")";
+
+	//in case of VR: UL, our t_name will look like: 66\24\2345\55 and its size will be 13.
+	//We must not count the character "\", so we will subtract each occurence of it
+	auto nr = 0; 
+	if(t_name.contains("\\")) 
 	{
-		ui.lineEditElement->setText("FFFF");
+		 nr = t_name.count("\\");
 	}
-	else if (ui.lineEditElement->text().size() < 4)
+	if(t_name.contains(","))
 	{
-		auto txt = ui.lineEditElement->text();
-		while (txt.size() < 4)
-		{
-			txt.insert(0, "0");
-		}
-		ui.lineEditElement->setText(txt);
+		nr = t_name.count(",");
 	}
-	
-	if (ui.lineEditGroup->text().isEmpty())
-	{
-		ui.lineEditGroup->setText("FFFF");
-	}
-	else if (!ui.lineEditGroup->text().isEmpty() && ui.lineEditGroup->text().size() < 4)
-	{
-		auto txt = ui.lineEditGroup->text();
-		while (txt.size() < 4)
-		{
-			txt.insert(0, "0");
-		}
-		ui.lineEditGroup->setText(txt);
-	}
-	
-	QString tagID = "(" + ui.lineEditGroup->text() + "," + 
-		ui.lineEditElement->text() + ")";
 	auto size=0;
 	if (!t_name.isEmpty())
-		size = t_name.size();
+	{
+		size = t_name.size() - nr;
+	}
 	if (size % 2)
+	{
 		size++;
-	emit sendItem( new Items(tagID, ui.lineEditVR->text(), "0",
-		std::to_string(size).c_str(), ui.descriptionLabel->text(), t_name, 0));
-	this->reject();
+	}
+
+	QString vm = std::to_string(nr+1).c_str();
+	QString len = std::to_string(size).c_str();
+
+	auto vr = m_ui.lineEditVR->text().toUpper();
+	auto description = m_ui.descriptionLabel->text();
+	emit sendItem(tagID, vr , vm, len , description , t_name);
+	close();
 }
 
-void InsertDialog::presets()
+void InsertDialog::sizeWasSent(QString& t_size)
 {
-	ui.lineEditGroup->setMaxLength(4);
-	ui.lineEditElement->setMaxLength(4);
+	setGroupElementFormat();
+	auto tagID = "(" + m_ui.lineEditGroup->text() + "," +
+		m_ui.lineEditElement->text() + ")";
+	QString vr = "SQ";
+	QString vm = "0";
+	QString description = m_ui.descriptionLabel->text();
+	QString value = "";
+	emit sendItem(tagID, vr, vm, t_size, description, value);
+	close();
+}
+
+void InsertDialog::presets() const
+{
+	m_ui.lineEditGroup->setMaxLength(4);
+	m_ui.lineEditElement->setMaxLength(4);
+}
+
+void InsertDialog::setGroupElementFormat() const
+{
+	if (m_ui.lineEditElement->text().isEmpty())
+	{
+		m_ui.lineEditElement->setText("FFFF");
+	}
+	else if (m_ui.lineEditElement->text().size() < 4)
+	{
+		auto txt = m_ui.lineEditElement->text();
+		while (txt.size() < 4)
+		{
+			txt.insert(0, "0");
+		}
+		m_ui.lineEditElement->setText(txt);
+	}
+
+	if (m_ui.lineEditGroup->text().isEmpty())
+	{
+		m_ui.lineEditGroup->setText("FFFF");
+	}
+	else if (!m_ui.lineEditGroup->text().isEmpty() && m_ui.lineEditGroup->text().size() < 4)
+	{
+		auto txt = m_ui.lineEditGroup->text();
+		while (txt.size() < 4)
+		{
+			txt.insert(0, "0");
+		}
+		m_ui.lineEditGroup->setText(txt);
+	}
 }
 

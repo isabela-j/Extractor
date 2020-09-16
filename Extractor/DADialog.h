@@ -1,21 +1,18 @@
 #pragma once
-
-#include <QDialog>
-#include "ui_DADialog.h"
-
-class DADialog : public QDialog
+#include "AbstractVRDialog.h"
+class DADialog: public AbstractVRDialog
 {
 	Q_OBJECT
-
 public:
-	DADialog(QString& t_description, QWidget *parent = Q_NULLPTR);
-	~DADialog();
-private slots:
-	void onOKPressed();
+	explicit DADialog(QString& t_description, QWidget* parent = Q_NULLPTR);
+	~DADialog()=default;
 signals:
-	void sendValue(QString& t_value);
+	void sendValue(QString& t_value) override;
+private slots:
+	void onOKPressed() override;
 
 private:
-	Ui::DADialog ui;
-	void presets(QString& t_description);
+	void presets(const QString& t_description) override;
+	
 };
+

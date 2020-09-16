@@ -1,17 +1,16 @@
 #pragma once
 #include "AbstractVRDialog.h"
-class DTDialog final: public AbstractVRDialog
+
+class UIDialog final : public AbstractVRDialog
 {
 	Q_OBJECT
-
 public:
-	explicit DTDialog(const QString& t_description, QWidget* parent = Q_NULLPTR);
-	~DTDialog()= default;
+	explicit UIDialog(const QString& t_description, QWidget* parent = Q_NULLPTR);
+	~UIDialog()=default;
 signals:
 	void sendValue(QString& t_value) override;
 private slots:
 	void onOKPressed() override;
-
 private:
 	void presets(const QString& t_description) override;
 };

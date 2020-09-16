@@ -1,19 +1,17 @@
 #pragma once
-
-#include <QDialog>
-#include "ui_ULDialog.h"
-
-class ULDialog : public QDialog
+#include "AbstractVRDialog.h"
+class ULDialog final : public AbstractVRDialog
 {
 	Q_OBJECT
-
 public:
-	ULDialog(QWidget *parent = Q_NULLPTR);
-	~ULDialog();
+	explicit ULDialog(const QString& t_description, QWidget* parent = Q_NULLPTR);
+	~ULDialog() = default;
 signals:
-	void sendValue(QString& t_value);
+	void sendValue(QString& t_value) override;
 private slots:
-	void onOKPressed();
+	void onOKPressed() override;
+
 private:
-	Ui::ULDialog ui;
+	void presets(const QString& t_description) override;
 };
+

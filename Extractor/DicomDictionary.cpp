@@ -3,6 +3,8 @@
 #include <dcmtk/dcmdata/dcdicent.h>
 #include <regex>
 
+constexpr auto DICT_SIZE = 3889;
+
 DicomDictionary::DicomDictionary(QWidget *parent)
 	: QDialog(parent)
 {
@@ -10,6 +12,7 @@ DicomDictionary::DicomDictionary(QWidget *parent)
 	presets();
 	populate();
 }
+
 
 DicomDictionary::~DicomDictionary()
 {
@@ -25,7 +28,7 @@ void DicomDictionary::presets()
 	setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 }
 
-void DicomDictionary::onSearchPressed()
+void DicomDictionary::onSearchPressed() const
 {
 	auto const description = ui.lineEdit->text();
 	if(description.isEmpty())
@@ -34,14 +37,14 @@ void DicomDictionary::onSearchPressed()
 	}
 	else
 	{
-		if (ui.tableWidget->rowCount() != 3889)
+		if (ui.tableWidget->rowCount() != DICT_SIZE)
 		{
 			populate();
 		}
-		auto rows = ui.tableWidget->rowCount();
-		for(int i=rows-1; i>=0;i--)
+		const auto rows = ui.tableWidget->rowCount();
+		for (auto i = rows - 1; i >= 0; i--)
 		{
-			if (!ui.tableWidget->item(i, 2)->text().contains(description,Qt::CaseSensitive))
+			if (!ui.tableWidget->item(i, 2)->text().contains(description,Qt::CaseInsensitive))
 				ui.tableWidget->removeRow(i);
 		}
 		
@@ -52,7 +55,7 @@ void DicomDictionary::onInsertPressed()
 {
 	if(!ui.tableWidget->selectedItems().isEmpty())
 	{
-		auto row = ui.tableWidget->selectedItems()[0]->row();
+		const auto row = ui.tableWidget->selectedItems()[0]->row();
 		auto group = ui.tableWidget->item(row, 0)->text();
 		auto element = ui.tableWidget->item(row, 1)->text();
 		auto description= ui.tableWidget->item(row, 2)->text();
@@ -63,16 +66,16 @@ void DicomDictionary::onInsertPressed()
 
 
 
-void DicomDictionary::populate()
+void DicomDictionary::populate() const
 {
 	auto* dictionary = new DcmDataDictionary(true, false);
-	DcmHashDictIterator iterStart = dictionary->normalBegin();
-	const DcmHashDictIterator iterEnd = dictionary->normalEnd();
+	auto iterStart = dictionary->normalBegin();
+	const auto iterEnd = dictionary->normalEnd();
 	auto count = 0;
-	ui.tableWidget->setRowCount(0);
+	ui.tableWidget->model()->removeRows(0, ui.tableWidget->rowCount());
 	while (iterStart != iterEnd)
 	{
-		const DcmDictEntry* item = *iterStart;
+		const auto* item = *iterStart;
 		QString key = item->getBaseTag().toString().c_str();
 		key=key.toUpper();
 		QString description = item->getTagName();
@@ -87,12 +90,11 @@ void DicomDictionary::populate()
 			ui.tableWidget->setItem(count, 2, new QTableWidgetItem(description,0));
 			ui.tableWidget->setItem(count, 3, new QTableWidgetItem(vr,0));
 			count++;
-		}
+		} //todo method
 	
 		++iterStart;
 		
 	}
-	ui.tableWidget->sortItems(0, Qt::AscendingOrder);
 	ui.tableWidget->resizeColumnsToContents();
 	delete dictionary;
 }

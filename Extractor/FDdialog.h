@@ -15,19 +15,19 @@ public:
 signals:
 	void sendValue(QString& t_value);
 private slots:
-	void onInsertPressed();
-	void valueWasSend(QString& t_value);
+	void onInsertPressed() const;
+	void valueWasSend(QString& t_value) const;
 
-	void onEditPressed();
-	void valueWasChanged(QString& t_value);
+	void onEditPressed() const;
+	void valueWasChanged(QString& t_value) const;
 
-	void onDeletePressed();
+	void onDeletePressed() const;
 
 	void onOKPressed();
 	
 private:
-	Ui::FDdialog ui;
+	Ui::FDdialog m_ui={};
 	std::unique_ptr<FDInsertDialog> m_insertDialog={};
 	std::unique_ptr<FDEditDialog> m_editDialog = {};
-	void presets(QString& t_description);
+	void presets(QString& t_description) const;
 };

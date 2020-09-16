@@ -9,9 +9,7 @@ PNDialog::PNDialog(QString& t_description, QWidget *parent)
 	ui.labelDescription->setText(t_description);
 }
 
-PNDialog::~PNDialog()
-{
-}
+
 
 void PNDialog::onOKPressed()
 {
@@ -37,5 +35,5 @@ void PNDialog::onOKPressed()
 		patientName += ui.lineEditNameSuffix->text() + "^";
 	}
 	emit sendName(patientName);
-	this->reject();
+	close();
 }

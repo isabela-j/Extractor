@@ -1,31 +1,35 @@
 #include "ULDialog.h"
 
+#include <QMessageBox>
 #include <qvalidator.h>
 
-ULDialog::ULDialog(QWidget *parent)
-	: QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
+ULDialog::ULDialog(const QString& t_description, QWidget* parent)
+	:AbstractVRDialog(t_description,parent)
 {
-	ui.setupUi(this);
+	presets(t_description);
 }
 
-ULDialog::~ULDialog()
-{
-}
 void ULDialog::onOKPressed()
 {
-	auto value = ui.lineEditValue->text();
-	if (value.toInt() < 0)
+	auto value = m_ui.lineEditValue->text();
+	const auto val = value.toLongLong();
+	if(val> 4294967295)
 	{
-		value = "0";
+		 QMessageBox::warning(this, tr("Warning found"),
+			tr("Introduce an integer between 0 and 4294967295."), QMessageBox::Cancel);
 	}
-	if(value.at(0)>=4 && value.at(1)>=2 && value.at(2) >= 9 && value.at(3) >= 4 && 
-	value.at(4) >= 9 && value.at(5) >= 6 && value.at(6) >= 7 && value.at(7) >= 2 && 
-	value.at(8) >= 9 && value.at(9) >= 6)
+	else
 	{
-		value = "4294967295";
+		emit sendValue(value);
+		close();
 	}
-	emit sendValue(value);
-	this->reject();
+}
+
+void ULDialog::presets(const QString& t_description)
+{
+	m_ui.labelDescription->setText("Integer between 0 and 4294967295.\n"+ t_description);
+	m_ui.lineEditValue->setMaxLength(10);
+	m_ui.lineEditValue->setValidator(new QRegExpValidator(QRegExp("^[0-9]+$"), this));
 }
 
 

@@ -3,13 +3,13 @@
 #include <QDialog>
 #include "ui_PNDialog.h"
 
-class PNDialog : public QDialog
+class PNDialog final: public QDialog
 {
 	Q_OBJECT
 
 public:
-	PNDialog(QString& t_description, QWidget *parent = Q_NULLPTR);
-	~PNDialog();
+	explicit PNDialog(QString& t_description, QWidget *parent = Q_NULLPTR);
+	~PNDialog() =default;
 
 private slots:
 	void onOKPressed();

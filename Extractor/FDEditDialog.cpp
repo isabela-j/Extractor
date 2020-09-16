@@ -5,7 +5,7 @@
 FDEditDialog::FDEditDialog(QWidget *parent)
 	: QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
 {
-	ui.setupUi(this);
+	m_ui.setupUi(this);
 	presets();
 }
 
@@ -15,7 +15,7 @@ FDEditDialog::~FDEditDialog()
 
 void FDEditDialog::onOKPressed()
 {
-	auto value = ui.lineEditValue->text();
+	auto value = m_ui.lineEditValue->text();
 	if (!value.contains("."))
 	{
 		value.append(".");
@@ -28,10 +28,7 @@ void FDEditDialog::onOKPressed()
 	this->reject();
 }
 
-void FDEditDialog::presets()
+void FDEditDialog::presets() const
 {
-	const auto regexValidator =
-		std::make_unique<QRegExpValidator>(QRegExp("[0-9]+(\.[0-9][0-9][0-9][0-9][0-9][0-9]?)?"));
-	ui.lineEditValue->setValidator(regexValidator.get());
-
+	m_ui.lineEditValue->setValidator(new QRegExpValidator(QRegExp("[0-9]+(\\.[0-9][0-9][0-9][0-9][0-9][0-9]?)?")));
 }

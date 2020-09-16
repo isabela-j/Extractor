@@ -1,25 +1,21 @@
 #include "STDialog.h"
 
-STDialog::STDialog(QString& t_description, QWidget *parent)
+STDialog::STDialog(const QString& t_description, QWidget* parent)
 	: QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
 {
-	ui.setupUi(this);
-}
-
-STDialog::~STDialog()
-{
+	m_ui.setupUi(this);
+	presets(t_description);
 }
 
 void STDialog::onOKPressed()
 {
-	auto value = ui.textEditValue->toPlainText();
+	auto value = m_ui.textEditValue->toPlainText();
 	value.replace("\n", " ");
 	emit sendValue(value);
-	this->reject();
+	close();
 }
 
-void STDialog::presets(QString& t_description)
+void STDialog::presets(const QString& t_description) const
 {
-	ui.labelDescription->setText(t_description);
-	
+	m_ui.labelDescription->setText(t_description);
 }

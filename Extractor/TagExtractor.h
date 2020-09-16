@@ -33,4 +33,5 @@ private:
 		QString& VM, QString& length, QString& description, QString& value);
 	void extractSequence(QXmlStreamReader* xmlReader, QString& tagId, QString& VR,
 		QString& VM, QString& length, QString& description, QString& value);
+	void extractPixelItem(QXmlStreamReader* xmlReader, QString& tagId, QString& length, QString& value);
 };

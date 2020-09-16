@@ -9,7 +9,8 @@
 
 void TagExtractor::addItem(Items* t_item, std::stack<QTreeWidgetItem*>& t_stack)
 {	
-	t_stack.empty() ? emit addNewRootInTree(t_item) : emit addNewChildInTree(t_item, t_stack.top());
+	t_stack.empty() ? emit addNewRootInTree(t_item)
+	: emit addNewChildInTree(t_item, t_stack.top());
 }
 
 void TagExtractor::extractElement(QXmlStreamReader* xmlReader, QString& tagId, QString& VR, QString& VM,
@@ -37,7 +38,6 @@ void TagExtractor::extractElement(QXmlStreamReader* xmlReader, QString& tagId, Q
 	{
 		value = xmlReader->readElementText();
 		value.replace("\n", "");
-		value = value.mid(0, 150);
 	}
 }
 
@@ -56,13 +56,22 @@ void TagExtractor::extractSequence(QXmlStreamReader* xmlReader, QString& tagId, 
 	value = ' ';
 }
 
+void TagExtractor::extractPixelItem(QXmlStreamReader* xmlReader, QString& tagId, QString& length, QString& value)
+{
+	const auto attributes = xmlReader->attributes();
+	tagId = "(FFFE,E000)";
+	length = attributes.value("len").toString();
+	value = "Binary hidden";
+}
+
+
 void TagExtractor::parseXML(const std::ostringstream& t_ss)
 {
 	const auto xmlReader =
 		std::make_unique<QXmlStreamReader>(QString::fromLatin1(t_ss.str().c_str()));
 
 	std::stack<QTreeWidgetItem*> stack;
-	int level = 0;
+	auto level = 0;
 	while (!xmlReader->atEnd() && !xmlReader->hasError())
 	{
 		const auto token = xmlReader->readNext();
@@ -85,24 +94,22 @@ void TagExtractor::parseXML(const std::ostringstream& t_ss)
 				extractSequence(xmlReader.get(), tagId, VR,
 					VM, length, description, value);
 
-				Items* item = new Items(tagId, VR, VM, length, description, value, level);
+				auto* item = new Items(tagId, VR, VM, length, description, value, level);
 				addItem(item, stack);
 				stack.push(item);
 				level++;
 			}
 			else if (xmlReader->name() == "item")
 			{
-				Items* seqItem = new Items("(FFFE,E000)", "", "1", xmlReader->attributes().value("len").toString(), "Item", " ", level);
+				auto* seqItem = new Items("(FFFE,E000)", "", "1",
+					xmlReader->attributes().value("len").toString(), "Item", " ", level);
 				addItem(seqItem, stack);
 				stack.push(seqItem);
 				level++;
 			}
 			else if (xmlReader->name() == "pixel-item")
 			{
-				auto attributes = xmlReader->attributes();
-				tagId = "(FFFE,E000)";
-				length = attributes.value("len").toString();
-				value = "Binary hidden";
+				extractPixelItem(xmlReader.get(), tagId, length, value);
 				addItem(new Items(tagId, VR, VM, length, description, value, level), stack);
 			}
 		}
@@ -128,6 +135,7 @@ void TagExtractor::parseXML(const std::ostringstream& t_ss)
 
 void TagExtractor::extract(const std::string& t_filePath)
 {
+	dcmEnableCP246Support.set(OFFalse);
 	if (m_file.loadFile(t_filePath.c_str()).bad())
 	{
 		throw std::runtime_error("Could not load file.");
@@ -135,6 +143,5 @@ void TagExtractor::extract(const std::string& t_filePath)
 	m_file.loadAllDataIntoMemory();
 	std::ostringstream ss;
 	m_file.writeXML(ss, DCMTypes::PF_shortenLongTagValues);
-	//std::cout << ss.str();
 	parseXML(ss);
 }

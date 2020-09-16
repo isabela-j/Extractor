@@ -1,12 +1,12 @@
 #pragma once
+#pragma once
 #include "AbstractVRDialog.h"
-class DTDialog final: public AbstractVRDialog
+class AEDialog final : public AbstractVRDialog
 {
 	Q_OBJECT
-
 public:
-	explicit DTDialog(const QString& t_description, QWidget* parent = Q_NULLPTR);
-	~DTDialog()= default;
+	explicit AEDialog(QString& t_description, QWidget* parent = Q_NULLPTR);
+	~AEDialog() = default;
 signals:
 	void sendValue(QString& t_value) override;
 private slots:
@@ -15,4 +15,5 @@ private slots:
 private:
 	void presets(const QString& t_description) override;
 };
+
 

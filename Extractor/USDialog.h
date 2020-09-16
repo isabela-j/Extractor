@@ -1,32 +1,29 @@
 #pragma once
 
-#include <QDialog>
-
-#include "InsertDialog.h"
 #include "ui_USDialog.h"
-#include "UnsignedShort.h"
-#include "UnsignedShortEdit.h"
-class USDialog : public QDialog
+#include "USInsertEdit.h"
+
+class USDialog final : public QDialog
 {
 	Q_OBJECT
 
 public:
-	USDialog(QString& t_description, QWidget* parent = Q_NULLPTR);
-	~USDialog();
+	explicit USDialog(QString& t_description, QWidget* parent = Q_NULLPTR);
+	~USDialog()=default;
 signals:
 	void sendValue(QString& t_value);
 	
 private slots:
-	void onInsertPressed();
-	void onEditPressed();
+	void onInsertPressed() const;
+	void onEditPressed() const;
 	void onOKPressed();
-	void valueWasSend(QString& t_value);
-	void valueWasChanged(QString& t_value);
-	void onDeletePressed();
+	void valueWasSend(QString& t_value) const;
+	void valueWasChanged(QString& t_value) const;
+	void onDeletePressed() const;
 
 private:
 	Ui::USDialog ui;
-	std::unique_ptr<UnsignedShort> m_insertDialogUS;
-	std::unique_ptr<UnsignedShortEdit> m_editDialogUS;
-	void presets(QString& t_description);
+	std::unique_ptr<USInsertEdit> m_insertDialogUS;
+	std::unique_ptr<USInsertEdit> m_editDialogUS;
+	void presets(QString& t_description) const;
 };
